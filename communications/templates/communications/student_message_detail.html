@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Message Details{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto mt-8 bg-white rounded-2xl shadow-md border border-gray-200 p-6">
+
+    <!-- Header -->
+    <div class="flex justify-between items-start mb-6">
+        <div>
+            <h1 class="flex items-center gap-2 text-2xl font-bold text-green-700">
+                <i data-lucide="message-square" class="w-6 h-6"></i>
+                {{ message.title }}
+            </h1>
+            <p class="text-gray-500 text-sm mt-1">
+                Sent on {{ message.created_at|date:"M d, Y H:i" }}
+            </p>
+        </div>
+
+        <a href="{% url 'communications:student_message_list' %}"
+            class="inline-flex items-center gap-1 text-green-600 hover:text-green-700 text-sm font-medium transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            Back to My Messages
+        </a>
+    </div>
+
+    <!-- Message Meta -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+
+        <!-- Sender -->
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+            <p class="text-xs text-gray-500 uppercase font-semibold mb-1 flex items-center gap-1">
+                <i data-lucide="user" class="w-4 h-4 text-gray-500"></i> From
+            </p>
+            <p class="text-gray-800 font-medium">
+                {{ message.sender.username|default:"System" }}
+            </p>
+        </div>
+
+        <!-- Scope -->
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+            <p class="text-xs text-gray-500 uppercase font-semibold mb-1 flex items-center gap-1">
+                <i data-lucide="target" class="w-4 h-4 text-gray-500"></i> Scope
+            </p>
+            <p class="text-gray-800 font-medium flex items-center gap-1">
+                {% if message.scope == "student" %}
+                <i data-lucide="user" class="w-4 h-4 text-green-600"></i> Direct Message
+                {% elif message.scope == "stream" %}
+                <i data-lucide="users" class="w-4 h-4 text-blue-600"></i> Class-wide Message
+                {% elif message.scope == "subject" %}
+                <i data-lucide="book-open" class="w-4 h-4 text-yellow-600"></i> Subject Announcement
+                {% else %}
+                <i data-lucide="tag" class="w-4 h-4 text-gray-500"></i> {{ message.scope|capfirst }}
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Recipient -->
+        {% if message.scope == "stream" and message.stream %}
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:col-span-2">
+            <p class="text-xs text-gray-500 uppercase font-semibold mb-1 flex items-center gap-1">
+                <i data-lucide="send" class="w-4 h-4 text-gray-500"></i> To
+            </p>
+            <p class="text-gray-800">
+                {{ message.stream.grade.name }} {{ message.stream.code }} (Your Class)
+            </p>
+        </div>
+        {% elif message.scope == "student" and message.student %}
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:col-span-2">
+            <p class="text-xs text-gray-500 uppercase font-semibold mb-1 flex items-center gap-1">
+                <i data-lucide="send" class="w-4 h-4 text-gray-500"></i> To
+            </p>
+            <p class="text-gray-800">You ({{ message.student.user.username }})</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Message Body -->
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-5">
+        <h2 class="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3">
+            <i data-lucide="file-text" class="w-5 h-5 text-gray-700"></i>
+            Message Content
+        </h2>
+        <div class="text-gray-700 leading-relaxed whitespace-pre-wrap">
+            {{ message.body }}
+        </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="mt-8 flex justify-between items-center">
+        <a href="{% url 'communications:student_message_list' %}"
+            class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            Back to My Messages
+        </a>
+
+        <!-- Future: reply feature -->
+        <!--
+        <a href="#" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg shadow transition">
+            <i data-lucide="reply" class="w-4 h-4"></i>
+            Reply
+        </a>
+        -->
+    </div>
+</div>
+{% endblock %}

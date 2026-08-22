@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard">
+    <h2>Teacher Dashboard</h2>
+    <p>Welcome {{ teacher.user.username }}!</p>
+    <ul>
+        <li>My Classes</li>
+        <li>Quizzes Created</li>
+        <li>Student Performance Overview</li>
+    </ul>
+</div>
+{% endblock %}

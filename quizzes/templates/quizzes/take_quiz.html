@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Take Quiz - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<h2>{{ quiz.title }}</h2>
+<p>Question {{ question_number }} of {{ total_questions }}</p>
+
+<form method="post">
+    {% csrf_token %}
+    <p>{{ question.text }}</p>
+    <label><input type="radio" name="selected_option" value="A" required> {{ question.option_a }}</label><br>
+    <label><input type="radio" name="selected_option" value="B"> {{ question.option_b }}</label><br>
+    <label><input type="radio" name="selected_option" value="C"> {{ question.option_c }}</label><br>
+    <label><input type="radio" name="selected_option" value="D"> {{ question.option_d }}</label><br><br>
+
+    <button type="submit">
+        {% if question_number == total_questions %}Submit Quiz{% else %}Next Question{% endif %}
+    </button>
+</form>
+{% endblock %}

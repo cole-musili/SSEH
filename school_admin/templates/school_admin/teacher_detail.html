@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ teacher.full_name }} - Profile{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <a href="{% url 'school_admin:teacher_record_list' %}" class="text-green-700 hover:underline mb-4 inline-block">
+        ← Back to Teacher List
+    </a>
+
+    <div class="bg-white shadow-lg rounded-xl p-6 flex flex-col md:flex-row gap-8 border border-gray-200">
+        <!-- LEFT: Photo + Basic Info -->
+        <div class="flex flex-col items-center w-full md:w-1/3 border-r border-gray-100 pr-0 md:pr-6">
+            <form method="POST" enctype="multipart/form-data" class="text-center" id="photoForm">
+                {% csrf_token %}
+                {% if teacher.photo %}
+                <img id="photoPreview" src="{{ teacher.photo.url }}"
+                    class="w-40 h-40 rounded-full object-cover border-4 border-green-500 shadow">
+                {% else %}
+                <img id="photoPreview" src="{% static 'images/default-avatar.png' %}"
+                    class="w-40 h-40 rounded-full object-cover border-4 border-gray-300 shadow">
+                {% endif %}
+
+                <input type="file" name="photo" id="photoInput" accept="image/*" class="hidden">
+
+                <label for="photoInput"
+                    class="cursor-pointer mt-4 inline-block bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1.5 rounded shadow">
+                    📸 Change Photo
+                </label>
+
+                <button type="submit" class="hidden bg-green-700 text-white text-sm px-3 py-1.5 rounded mt-2"
+                    id="savePhotoBtn">💾 Save Photo</button>
+            </form>
+
+            <h2 class="text-2xl font-bold mt-4">{{ teacher.full_name }}</h2>
+            <p class="text-gray-500">{{ teacher.specialization.name|default:"No subject assigned" }}</p>
+
+            <span class="mt-2 px-3 py-1 rounded text-sm font-medium
+                {% if teacher.status == 'active' %}bg-green-100 text-green-700
+                {% elif teacher.status == 'leave' %}bg-yellow-100 text-yellow-700
+                {% else %}bg-gray-100 text-gray-600{% endif %}">
+                {{ teacher.get_status_display }}
+            </span>
+
+            <div class="mt-4 text-sm text-gray-500">
+                <p>📞 {{ teacher.phone|default:"N/A" }}</p>
+                <p>📧 {{ teacher.email|default:"No email" }}</p>
+                <p>🎓 {{ teacher.qualification|default:"No qualification listed" }}</p>
+                <p>📅 Joined: {{ teacher.employment_date|date:"M d, Y" }}</p>
+            </div>
+        </div>
+
+        <!-- RIGHT: Editable Form -->
+        <div class="flex-1">
+            <h3 class="text-lg font-semibold text-green-700 mb-4">📝 Edit Teacher Information</h3>
+
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="font-semibold text-gray-700">Full Name</label>
+                        <input type="text" name="full_name" value="{{ teacher.full_name }}"
+                            class="w-full p-2 border rounded focus:ring-2 focus:ring-green-400">
+                    </div>
+
+                    <div>
+                        <label class="font-semibold text-gray-700">Phone</label>
+                        <input type="text" name="phone" value="{{ teacher.phone }}"
+                            class="w-full p-2 border rounded focus:ring-2 focus:ring-green-400">
+                    </div>
+
+                    <div>
+                        <label class="font-semibold text-gray-700">Email</label>
+                        <input type="email" name="email" value="{{ teacher.email }}"
+                            class="w-full p-2 border rounded focus:ring-2 focus:ring-green-400">
+                    </div>
+
+                    <!-- Gender -->
+                    <div>
+                        <label class="font-semibold text-gray-700">Gender</label>
+                        <select name="gender" class="w-full p-2 border rounded focus:ring-2 focus:ring-green-400">
+                            {% if teacher.gender == "M" %}
+                            <option value="M" selected>Male</option>
+                            <option value="F">Female</option>
+                            {% elif teacher.gender == "F" %}
+                            <option value="M">Male</option>
+                            <option value="F" selected>Female</option>
+                            {% else %}
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="font-semibold text-gray-700">Qualification</label>
+                        <input type="text" name="qualification" value="{{ teacher.qualification }}"
+                            class="w-full p-2 border rounded focus:ring-2 focus:ring-green-400">
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label class="font-semibold text-gray-700">Status</label>
+                        <select name="status" class="w-full p-2 border rounded focus:ring-2 focus:ring-green-400">
+                            {% if teacher.status == "active" %}
+                            <option value="active" selected>Active</option>
+                            <option value="leave">On Leave</option>
+                            <option value="inactive">Inactive</option>
+                            {% elif teacher.status == "leave" %}
+                            <option value="active">Active</option>
+                            <option value="leave" selected>On Leave</option>
+                            <option value="inactive">Inactive</option>
+                            {% elif teacher.status == "inactive" %}
+                            <option value="active">Active</option>
+                            <option value="leave">On Leave</option>
+                            <option value="inactive" selected>Inactive</option>
+                            {% else %}
+                            <option value="active">Active</option>
+                            <option value="leave">On Leave</option>
+                            <option value="inactive">Inactive</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="font-semibold text-gray-700">Specialization</label>
+                        <select name="specialization" class="w-full p-2 border rounded focus:ring-2 focus:ring-green-400">
+                            <option value="">-- Select Subject --</option>
+                            {% for s in subjects %}
+                            {% if teacher.specialization %}
+                            {% if teacher.specialization.id == s.id %}
+                            <option value="{{ s.id }}" selected>{{ s.name }}</option>
+                            {% else %}
+                            <option value="{{ s.id }}">{{ s.name }}</option>
+                            {% endif %}
+                            {% else %}
+                            <option value="{{ s.id }}">{{ s.name }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+
+                    <div>
+                        <label class="font-semibold text-gray-700">Streams</label>
+                        <select name="streams" multiple
+                            class="w-full p-2 border rounded focus:ring-2 focus:ring-green-400">
+                            {% for st in streams %}
+                            <option value="{{ st.id }}" {% if st in teacher.assigned_streams.all %}selected{% endif %}>
+                                {{ st.grade.name }} {{ st.code }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-gray-500 text-xs">Hold CTRL (or CMD) to select multiple</small>
+                    </div>
+                </div>
+
+                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 shadow mt-4">
+                    💾 Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JS: Live Photo Preview -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const photoInput = document.getElementById("photoInput");
+        const photoPreview = document.getElementById("photoPreview");
+        const savePhotoBtn = document.getElementById("savePhotoBtn");
+        const photoForm = document.getElementById("photoForm");
+
+        photoInput.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    photoPreview.src = event.target.result;
+                    savePhotoBtn.classList.remove("hidden");
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        photoForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(photoForm);
+            const response = await fetch("", { method: "POST", body: formData });
+            if (response.ok) {
+                alert("✅ Photo updated successfully!");
+                savePhotoBtn.classList.add("hidden");
+            } else {
+                alert("❌ Failed to update photo.");
+            }
+        });
+    });
+</script>
+{% endblock %}

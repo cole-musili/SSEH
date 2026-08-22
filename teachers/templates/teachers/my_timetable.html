@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}My Timetable{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <h1 class="flex items-center gap-2 text-3xl font-bold text-green-700">
+            <i data-lucide="calendar" class="w-7 h-7"></i>
+            My Timetable
+        </h1>
+        <a href="{% url 'teachers:teacher_dashboard' %}" class="text-sm text-green-600 hover:underline mt-3 sm:mt-0">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Filter + Export -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <form method="get" class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <label for="day" class="text-gray-700 text-sm whitespace-nowrap">Filter by Day:</label>
+            <select name="day" id="day"
+                class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-green-500 focus:border-green-500 w-full sm:w-auto">
+                {% for value, label in days %}
+                <option value="{{ value }}" {% if selected_day == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit"
+                class="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg text-sm shadow transition">
+                Apply
+            </button>
+            {% if selected_day %}
+            <a href="{% url 'teachers:my_timetable' %}" class="text-sm text-gray-500 hover:underline">Reset</a>
+            {% endif %}
+        </form>
+
+        <a href="?export=pdf{% if selected_day %}&day={{ selected_day }}{% endif %}"
+            class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm shadow transition w-full sm:w-auto text-center">
+            <i data-lucide="download" class="w-4 h-4"></i> Export PDF
+        </a>
+    </div>
+
+    {% if entries %}
+    <!-- Desktop Table -->
+    <div class="hidden sm:block bg-white border border-gray-200 rounded-2xl shadow overflow-hidden">
+        <table class="min-w-full text-sm text-gray-700">
+            <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                <tr>
+                    <th class="py-3 px-4 text-left">Day</th>
+                    <th class="py-3 px-4 text-left">Time</th>
+                    <th class="py-3 px-4 text-left">Subject</th>
+                    <th class="py-3 px-4 text-left">Stream</th>
+                    <th class="py-3 px-4 text-left">Room</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for entry in entries %}
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="py-3 px-4 font-medium">{{ entry.get_day_of_week_display }}</td>
+                    <td class="py-3 px-4">{{ entry.start_time }} - {{ entry.end_time }}</td>
+                    <td class="py-3 px-4">{{ entry.subject.name }}</td>
+                    <td class="py-3 px-4">{{ entry.stream.grade.name }} {{ entry.stream.code }}</td>
+                    <td class="py-3 px-4">{{ entry.room|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="sm:hidden space-y-4">
+        {% for entry in entries %}
+        <div class="bg-white border border-gray-200 rounded-xl shadow p-4 text-sm">
+            <div class="flex justify-between mb-2">
+                <span class="font-semibold text-green-700">{{ entry.get_day_of_week_display }}</span>
+                <span class="text-gray-600">{{ entry.start_time }} - {{ entry.end_time }}</span>
+            </div>
+            <p><strong>Subject:</strong> {{ entry.subject.name }}</p>
+            <p><strong>Stream:</strong> {{ entry.stream.grade.name }} {{ entry.stream.code }}</p>
+            <p><strong>Room:</strong> {{ entry.room|default:"—" }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div
+        class="bg-yellow-50 border-l-4 border-yellow-500 p-5 rounded-lg shadow text-yellow-800 text-sm text-center mt-8">
+        ⚠️ No timetable entries found.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

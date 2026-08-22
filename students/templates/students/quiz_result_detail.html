@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Results — {{ result.quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl sm:text-4xl font-bold text-green-700">
+            {{ result.quiz.title }}
+        </h1>
+        <p class="text-gray-500 text-sm mt-2">
+            Completed on {{ result.taken_at|date:"M d, Y H:i" }}
+        </p>
+    </div>
+
+    <!-- Score Summary -->
+    <section class="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <i data-lucide="target" class="w-5 h-5 text-green-600"></i>
+            Your performance
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+            <!-- Score -->
+            <div class="rounded-xl border border-gray-200 p-5">
+                <p class="text-gray-500 text-sm">Score</p>
+                <p class="mt-1 text-3xl font-bold text-green-700">
+                    {{ result.score }} <span class="text-gray-400 text-xl">/ {{ answers|length }}</span>
+                </p>
+            </div>
+
+            <!-- Percentage -->
+            <div class="rounded-xl border border-gray-200 p-5">
+                <p class="text-gray-500 text-sm">Percentage</p>
+                <p
+                    class="mt-1 text-3xl font-bold {% if percentage >= 80 %}text-green-700{% elif percentage >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                    {{ percentage }}%
+                </p>
+            </div>
+
+            <!-- Status chip -->
+            <div class="rounded-xl border border-gray-200 p-5">
+                <p class="text-gray-500 text-sm">Status</p>
+                {% if percentage >= 80 %}
+                <span
+                    class="inline-flex items-center gap-2 mt-2 text-sm font-medium bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-full">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i> Excellent
+                </span>
+                {% elif percentage >= 50 %}
+                <span
+                    class="inline-flex items-center gap-2 mt-2 text-sm font-medium bg-yellow-50 text-yellow-700 border border-yellow-200 px-3 py-1.5 rounded-full">
+                    <i data-lucide="alert-circle" class="w-4 h-4"></i> Fair
+                </span>
+                {% else %}
+                <span
+                    class="inline-flex items-center gap-2 mt-2 text-sm font-medium bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded-full">
+                    <i data-lucide="x-circle" class="w-4 h-4"></i> Needs improvement
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="mt-6">
+            <div class="w-full bg-gray-200 rounded-full h-3" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                aria-valuenow="{{ percentage }}">
+                <div class="h-3 rounded-full transition-all duration-500
+                    {% if percentage >= 80 %}bg-green-600
+                    {% elif percentage >= 50 %}bg-yellow-500
+                    {% else %}bg-red-500{% endif %}" style="width: {{ percentage }}%;">
+                </div>
+            </div>
+            <p class="mt-2 text-xs text-gray-500 text-right">{{ percentage }}%</p>
+        </div>
+    </section>
+
+    <!-- Answer Breakdown -->
+    <section class="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8">
+        <h3 class="text-lg sm:text-xl font-semibold text-gray-800 mb-5 flex items-center gap-2">
+            <i data-lucide="list-check" class="w-5 h-5 text-green-600"></i>
+            Answer breakdown
+        </h3>
+
+        {% if answers %}
+        <ul class="space-y-4">
+            {% for ans in answers %}
+            <li class="rounded-lg border
+                     {% if ans.is_correct %}bg-green-50 border-green-200{% else %}bg-red-50 border-red-200{% endif %}
+                     p-4">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="font-medium text-gray-900 mb-1">
+                            {{ forloop.counter }}. {{ ans.question.text }}
+                        </p>
+
+                        <div class="text-sm space-y-1">
+                            <p>
+                                <span class="text-gray-600">Your answer:</span>
+                                <span
+                                    class="font-medium {% if ans.is_correct %}text-green-700{% else %}text-red-700{% endif %}">
+                                    {{ ans.selected_option|default:"Not answered" }}
+                                </span>
+                            </p>
+                            <p class="text-gray-600">
+                                <span class="text-gray-600">Correct answer:</span>
+                                <span class="font-medium text-gray-800">{{ ans.question.correct_answer }}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <span class="shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium
+                           {% if ans.is_correct %}bg-green-100 text-green-700 border border-green-200
+                           {% else %}bg-red-100 text-red-700 border border-red-200{% endif %}">
+                        {% if ans.is_correct %}
+                        <i data-lucide="check" class="w-3.5 h-3.5"></i> Correct
+                        {% else %}
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i> Incorrect
+                        {% endif %}
+                    </span>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-sm text-gray-500 italic">No answers recorded for this attempt.</p>
+        {% endif %}
+    </section>
+
+    <!-- Back -->
+    <div class="mt-8 text-center">
+        <a href="{% url 'students:results' %}"
+            class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-medium shadow transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            Back to results
+        </a>
+    </div>
+</div>
+{% endblock %}

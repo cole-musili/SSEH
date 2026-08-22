@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Quiz{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h1 class="text-2xl font-bold mb-4 text-red-600">⚠️ Confirm Delete</h1>
+
+        <p class="mb-6 text-gray-700">
+            Are you sure you want to delete the quiz
+            <span class="font-semibold">"{{ quiz.title }}"</span>?
+            <br>
+            This action <strong>cannot</strong> be undone.
+        </p>
+
+        <form method="post" class="flex gap-4">
+            {% csrf_token %}
+            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                🗑 Yes, Delete
+            </button>
+            <a href="{% url 'teachers:quiz_list_teacher' %}"
+                class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
+                ❌ Cancel
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}My Quizzes{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
+        <div>
+            <h1 class="text-3xl font-bold text-green-700">My Quizzes</h1>
+            <p class="text-gray-500 text-sm mt-1">Manage, track, and review your quizzes with ease.</p>
+        </div>
+        <a href="{% url 'teachers:create_quiz' %}"
+            class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg shadow-md transition mt-4 md:mt-0">
+            <i data-lucide="plus" class="w-4 h-4"></i> Create New Quiz
+        </a>
+    </div>
+
+    {% if quiz_stats %}
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white border border-gray-200 shadow-sm rounded-xl p-5">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm text-gray-600">Total Quizzes</h3>
+                <i data-lucide="book-open" class="w-5 h-5 text-green-600"></i>
+            </div>
+            <p class="text-3xl font-bold text-green-700 mt-2">{{ quiz_stats|length }}</p>
+        </div>
+        <div class="bg-white border border-gray-200 shadow-sm rounded-xl p-5">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm text-gray-600">Streams Assigned</h3>
+                <i data-lucide="layers" class="w-5 h-5 text-blue-600"></i>
+            </div>
+            <p class="text-3xl font-bold text-blue-700 mt-2">{{ quiz_stats|dictsort:"stream"|length }}</p>
+        </div>
+        <div class="bg-white border border-gray-200 shadow-sm rounded-xl p-5">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm text-gray-600">Average Progress</h3>
+                <i data-lucide="activity" class="w-5 h-5 text-yellow-600"></i>
+            </div>
+            <p class="text-3xl font-bold text-yellow-600 mt-2">{{ avg|default:"0" }}%</p>
+        </div>
+    </div>
+
+    <!-- Desktop Table -->
+    <div class="hidden md:block bg-white shadow-md rounded-xl border border-gray-200 overflow-x-auto">
+        <table class="min-w-full text-sm text-gray-800">
+            <thead class="bg-gray-100 text-gray-600 uppercase text-xs font-semibold">
+                <tr>
+                    <th class="py-3 px-4 text-left">Quiz Title</th>
+                    <th class="py-3 px-4 text-left">Stream</th>
+                    <th class="py-3 px-4 text-center">Attempted</th>
+                    <th class="py-3 px-4 text-center">Total</th>
+                    <th class="py-3 px-4 text-center">Progress</th>
+                    <th class="py-3 px-4 text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for item in quiz_stats %}
+                {% with total=item.total_students attempted=item.attempted_students %}
+                {% if total > 0 %}
+                {% widthratio attempted total 100 as progress %}
+                {% else %}
+                {% with progress=0 %}{% endwith %}
+                {% endif %}
+                {% endwith %}
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="py-3 px-4 font-semibold text-gray-900">{{ item.quiz.title }}</td>
+                    <td class="py-3 px-4 text-gray-600">
+                        {% if item.stream %}
+                        {{ item.stream.grade.name }} {{ item.stream.code }}
+                        {% else %}
+                        <span class="italic text-gray-400">Unassigned</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 text-center">{{ item.attempted_students }}</td>
+                    <td class="py-3 px-4 text-center">{{ item.total_students }}</td>
+                    <td class="py-3 px-4 text-center">
+                        {% if item.total_students > 0 %}
+                        <div class="flex flex-col items-center">
+                            <div class="w-28 bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-600 h-2 rounded-full" style="width: {{ progress }}%;"></div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">{{ progress }}%</p>
+                        </div>
+                        {% else %}
+                        <span class="text-gray-400 italic">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 text-center space-x-2">
+                        <a href="{% url 'teachers:add_question' item.quiz.id %}"
+                            class="inline-flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 rounded text-xs">
+                            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Edit
+                        </a>
+                        <a href="{% url 'teachers:quiz_results_teacher' item.quiz.id %}"
+                            class="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs">
+                            <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> Results
+                        </a>
+                        <a href="{% url 'teachers:delete_quiz' item.quiz.id %}"
+                            class="inline-flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="md:hidden space-y-4">
+        {% for item in quiz_stats %}
+        {% with total=item.total_students attempted=item.attempted_students %}
+        {% if total > 0 %}
+        {% widthratio attempted total 100 as progress %}
+        {% else %}
+        {% with progress=0 %}{% endwith %}
+        {% endif %}
+        {% endwith %}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <h3 class="font-semibold text-gray-900 text-lg">{{ item.quiz.title }}</h3>
+            <p class="text-sm text-gray-500 mt-1">
+                {% if item.stream %}
+                {{ item.stream.grade.name }} {{ item.stream.code }}
+                {% else %}
+                <span class="italic text-gray-400">Unassigned</span>
+                {% endif %}
+            </p>
+            <div class="flex justify-between text-sm text-gray-600 mt-3">
+                <p><span class="font-semibold">{{ item.attempted_students }}</span> Attempted</p>
+                <p><span class="font-semibold">{{ item.total_students }}</span> Total</p>
+            </div>
+            <div class="mt-3">
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-green-600 h-2 rounded-full" style="width: {{ progress }}%;"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">{{ progress }}% completed</p>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-4">
+                <a href="{% url 'teachers:add_question' item.quiz.id %}"
+                    class="flex-1 text-center bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded text-sm transition">
+                    Edit
+                </a>
+                <a href="{% url 'teachers:quiz_results_teacher' item.quiz.id %}"
+                    class="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-sm transition">
+                    Results
+                </a>
+                <a href="{% url 'teachers:delete_quiz' item.quiz.id %}"
+                    class="flex-1 text-center bg-red-600 hover:bg-red-700 text-white py-2 rounded text-sm transition">
+                    Delete
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div
+        class="text-center py-12 text-gray-500 text-sm bg-gray-50 border border-dashed border-gray-300 rounded-xl shadow-sm mt-10">
+        <i data-lucide="alert-circle" class="w-10 h-10 mx-auto mb-3 text-gray-400"></i>
+        You haven’t created any quizzes yet.<br>
+        <a href="{% url 'teachers:create_quiz' %}" class="text-green-600 hover:underline font-medium">
+            Click here to create your first quiz.
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

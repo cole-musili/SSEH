@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Assign Roles{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-3xl font-bold text-green-700 mb-5">Manage Class Assignments</h1>
+
+    {% if messages %}
+    <ul class="mb-4">
+        {% for message in messages %}
+        <li class="text-{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <form method="POST" class="bg-gray-100 p-6 rounded shadow max-w-2xl mx-auto">
+        {% csrf_token %}
+
+        <!-- Select Class -->
+        <div class="mb-5">
+            <label class="block font-semibold mb-1 text-gray-800">Select Class</label>
+            <select name="classroom" class="form-control w-full p-2 border rounded">
+                <option value="">-- Choose a class --</option>
+                {% for c in classes %}
+                <option value="{{ c.id }}" {% if c.is_selected %}selected{% endif %}>
+                    {{ c.name }} ({{ c.subject }})
+                    {% if c.teacher %}- Teacher: {{ c.teacher.username }}{% endif %}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Assign Teacher -->
+        <div class="mb-5">
+            <label class="block font-semibold mb-1 text-gray-800">Assign Teacher</label>
+            <select name="teacher" class="form-control w-full p-2 border rounded">
+                <option value="">-- Choose a teacher --</option>
+                {% for t in teachers %}
+                <option value="{{ t.id }}">{{ t.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Assign Students -->
+        <div class="mb-5">
+            <label class="block font-semibold mb-1 text-gray-800">Assign Students</label>
+            <select name="students" multiple class="form-control w-full p-2 border rounded h-48">
+                {% for s in students %}
+                <option value="{{ s.id }}" {% if s.classroom and s.classroom.is_selected %}selected{% endif %}>
+                    {{ s.user.username }}
+                    {% if s.classroom %} ({{ s.classroom.name }}){% endif %}
+                </option>
+                {% endfor %}
+            </select>
+            <small class="text-gray-500">Hold Ctrl or Command to select multiple students</small>
+        </div>
+
+        <div class="text-center mt-6">
+            <button type="submit" class="bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700">
+                Save Assignments
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

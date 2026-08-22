@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Parent Inbox{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-green-700 flex items-center gap-2">
+                <i data-lucide="inbox" class="w-6 h-6 text-green-700"></i>
+                Parent Inbox
+            </h1>
+            <p class="text-gray-500 text-sm mt-1">
+                View messages sent by teachers to you or your child’s class.
+            </p>
+        </div>
+        <a href="{% url 'accounts:logout' %}"
+            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow text-sm transition">
+            <i data-lucide="log-out" class="w-4 h-4 inline-block mr-1"></i> Logout
+        </a>
+    </div>
+
+    {% if parent_messages %}
+    <!-- Scrollable Table -->
+    <div class="overflow-x-auto bg-white shadow-md rounded-lg border border-gray-200">
+        <table class="min-w-full text-sm text-gray-700">
+            <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                <tr>
+                    <th class="py-3 px-4 text-left">Title</th>
+                    <th class="py-3 px-4 text-left">Teacher</th>
+                    <th class="py-3 px-4 text-left">Stream</th>
+                    <th class="py-3 px-4 text-left">Date</th>
+                    <th class="py-3 px-4 text-center">Status</th>
+                    <th class="py-3 px-4 text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pm in parent_messages %}
+                <tr class="border-t hover:bg-green-50 transition">
+                    <td class="py-3 px-4 font-medium text-gray-800 whitespace-nowrap">
+                        {{ pm.message.title }}
+                    </td>
+                    <td class="py-3 px-4 whitespace-nowrap">
+                        {{ pm.message.sender.username|title }}
+                    </td>
+                    <td class="py-3 px-4 whitespace-nowrap">
+                        {% if pm.message.stream %}
+                        {{ pm.message.stream.grade.name }} {{ pm.message.stream.code }}
+                        {% else %}
+                        <span class="italic text-gray-400">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 text-gray-500 text-xs whitespace-nowrap">
+                        {{ pm.message.created_at|date:"M d, Y H:i" }}
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                        {% if pm.is_read %}
+                        <span class="text-green-600 font-semibold">Read</span>
+                        {% else %}
+                        <span class="text-yellow-600 font-semibold">Unread</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                        <a href="{% url 'communications:parent_message_detail' pm.message.id %}"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-xs shadow transition">
+                            View
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-5 rounded-md shadow text-yellow-800 mt-6 text-sm">
+        You don’t have any messages yet. Messages from teachers will appear here.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

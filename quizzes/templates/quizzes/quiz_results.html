@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Results - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<h2>Results for Quiz: {{ quiz.title }}</h2>
+
+{% if results %}
+<table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Score</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for result in results %}
+        <tr>
+            <td>{{ result.student.user.username }}</td>
+            <td>{{ result.score }}</td>
+            <td><a href="{% url 'quizzes:quiz_result_detail' result.id %}">View Answers</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No student has taken this quiz yet.</p>
+{% endif %}
+{% endblock %}

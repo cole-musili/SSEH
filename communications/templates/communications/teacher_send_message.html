@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Send Message{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-green-600 to-green-700 text-white rounded-t-xl shadow-lg px-6 py-5">
+        <div class="flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-wide flex items-center gap-2">
+                <i data-lucide="send" class="w-6 h-6"></i> Send a Message
+            </h1>
+            <a href="{% url 'communications:teacher_message_list' %}"
+                class="text-sm bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-lg transition">
+                ← Back to Messages
+            </a>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form method="POST" class="bg-white shadow-md border-x border-b border-gray-200 rounded-b-xl p-6 space-y-6">
+        {% csrf_token %}
+
+        <!-- Recipient Type -->
+        <div>
+            <label for="scope" class="block text-sm font-semibold text-gray-800 mb-2">Recipient Type</label>
+            <select name="scope" id="scope"
+                class="w-full border border-gray-300 bg-gray-50 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                required>
+                <option value="" disabled selected>-- Choose Recipient Type --</option>
+                <option value="stream">Entire Stream</option>
+                <option value="subject">Subject Group</option>
+                <option value="student">Specific Student</option>
+            </select>
+        </div>
+
+        <!-- Stream -->
+        <div id="stream-section" class="hidden">
+            <label class="block text-sm font-semibold text-gray-800 mb-2">Select Stream</label>
+            <select name="stream"
+                class="w-full border border-gray-300 bg-gray-50 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500">
+                {% for s in streams %}
+                <option value="{{ s.id }}">{{ s.grade.name }} {{ s.code }} ({{ s.year.name }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Subject -->
+        <div id="subject-section" class="hidden">
+            <label class="block text-sm font-semibold text-gray-800 mb-2">Select Subject</label>
+            <select name="subject"
+                class="w-full border border-gray-300 bg-gray-50 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500">
+                {% for subj in subjects %}
+                <option value="{{ subj.id }}">{{ subj.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Student -->
+        <div id="student-section" class="hidden">
+            <label class="block text-sm font-semibold text-gray-800 mb-2">Select Student</label>
+            <select name="student"
+                class="w-full border border-gray-300 bg-gray-50 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500">
+                {% for stu in students %}
+                <option value="{{ stu.id }}">{{ stu.user.username }} ({{ stu.student_id }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Title -->
+        <div>
+            <label class="block text-sm font-semibold text-gray-800 mb-2">Title</label>
+            <input type="text" name="title" required
+                class="w-full border border-gray-300 bg-gray-50 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="Enter message title">
+        </div>
+
+        <!-- Body -->
+        <div>
+            <label class="block text-sm font-semibold text-gray-800 mb-2">Message</label>
+            <textarea name="body" rows="5" required
+                class="w-full border border-gray-300 bg-gray-50 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="Type your message..."></textarea>
+        </div>
+
+        <!-- Submit -->
+        <div class="flex justify-end">
+            <button type="submit"
+                class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg text-sm shadow-md transition">
+                <i data-lucide="send-horizontal" class="w-4 h-4"></i>
+                Send Message
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- JS: Toggle visibility -->
+<script>
+    document.getElementById("scope").addEventListener("change", function () {
+        const sections = ["stream", "subject", "student"];
+        sections.forEach(id => document.getElementById(`${id}-section`).classList.add("hidden"));
+        document.getElementById(`${this.value}-section`)?.classList.remove("hidden");
+    });
+</script>
+{% endblock %}

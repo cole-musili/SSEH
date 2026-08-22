@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block title %}{{ stream }} Timetable{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto mt-8 p-4" x-data="timetableModal()">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-green-700">📘 Timetable — {{ stream }}</h1>
+            <p class="text-xs text-gray-500 mt-1">Click on any entry to edit or click an empty slot to add a class
+                directly.</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{% url 'school_admin:timetable_create' %}?stream={{ stream.id }}"
+                class="bg-green-600 text-white text-sm font-semibold px-4 py-2 rounded shadow hover:bg-green-700 transition">
+                + Full Form Add
+            </a>
+            <a href="{% url 'school_admin:timetable_list' %}"
+                class="text-sm border border-gray-300 px-3 py-2 rounded text-gray-700 hover:bg-gray-100 transition">
+                ← Back to List View
+            </a>
+        </div>
+    </div>
+
+    <!-- Grid Table -->
+    <div class="overflow-x-auto bg-white border border-gray-200 rounded-lg shadow-sm">
+        <table class="min-w-full border-collapse text-sm text-gray-800">
+            <thead class="bg-green-50 border-b border-gray-200">
+                <tr>
+                    <th class="px-3 py-3 border-r w-28 font-bold text-gray-700 text-center">Time Slot</th>
+                    {% for day in timetable_data.keys %}
+                    <th class="px-4 py-3 border-r font-bold text-gray-700 text-center w-1/5">{{ day }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for row_idx in max_rows %}
+                <tr>
+                    <!-- Time Indicator Column -->
+                    <td class="px-3 py-3 border-r bg-gray-50 text-xs font-semibold text-center text-gray-600">
+                        Slot {{ forloop.counter }}
+                    </td>
+
+                    <!-- Days Columns -->
+                    {% for day, entries in timetable_data.items %}
+                    <td
+                        class="px-2 py-2 border-r relative group text-center hover:bg-green-50/40 transition duration-150 min-h-[70px]">
+                        {% for entry in entries %}
+                        {% if forloop.counter0 == row_idx %}
+                        <!-- Active Entry Box (Click to Edit) -->
+                        <div @click="openModal($el.dataset)" data-id="{{ entry.id }}" data-day="{{ day }}"
+                            data-subject="{{ entry.subject.id }}"
+                            data-teacher="{% if entry.teacher_record %}{{ entry.teacher_record.id }}{% endif %}"
+                            data-room="{{ entry.room|default:'' }}" data-start="{{ entry.start_time|time:'H:i' }}"
+                            data-end="{{ entry.end_time|time:'H:i' }}"
+                            class="p-2 rounded border border-green-200 bg-green-50 hover:bg-green-100 cursor-pointer shadow-sm text-left group/item transition">
+                            <div class="font-bold text-green-800 text-sm">{{ entry.subject.name }}</div>
+                            <div class="text-xs text-gray-600 font-medium">
+                                {% if entry.teacher_record %}{{ entry.teacher_record.full_name }}{% else %}{{
+                                entry.teacher_name|default:"—" }}{% endif %}
+                            </div>
+                            <div class="flex justify-between items-center mt-1 text-[11px] text-gray-500">
+                                <span>📍 {{ entry.room|default:"—" }}</span>
+                                <span class="text-green-700 font-semibold group-hover/item:underline">Edit</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% empty %}
+                        <!-- Empty Cell (Click to Quick Add) -->
+                        <button @click="openModal({ day: '{{ day }}' })"
+                            class="w-full h-16 border-2 border-dashed border-transparent group-hover:border-green-300 rounded flex items-center justify-center text-gray-400 group-hover:text-green-600 transition">
+                            <span class="hidden group-hover:inline text-xs font-semibold">+ Add Entry</span>
+                            <span class="group-hover:hidden text-gray-300">—</span>
+                        </button>
+                        {% endfor %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Quick Add / Edit Modal -->
+    <div x-show="isOpen"
+        class="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
+        x-cloak>
+        <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 border border-gray-100"
+            @click.outside="isOpen = false">
+            <div class="flex justify-between items-center pb-3 mb-4 border-b">
+                <h3 class="text-lg font-bold text-gray-800"
+                    x-text="entryId ? 'Edit Timetable Entry' : 'Add Timetable Entry'"></h3>
+                <button @click="isOpen = false"
+                    class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+            </div>
+
+            <form method="POST" :action="getFormUrl()">
+                {% csrf_token %}
+                <input type="hidden" name="stream" value="{{ stream.id }}">
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Day of Week</label>
+                        <select name="day_of_week" x-model="selectedDay"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500">
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Subject</label>
+                            <select name="subject" x-model="selectedSubject" required
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500">
+                                <option value="">Select Subject</option>
+                                {% for sub in subjects %}
+                                <option value="{{ sub.id }}">{{ sub.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Teacher</label>
+                            <select name="teacher_record" x-model="selectedTeacher"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500">
+                                <option value="">Select Teacher</option>
+                                {% for t in teachers %}
+                                <option value="{{ t.id }}">{{ t.full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Start Time</label>
+                            <input type="time" name="start_time" x-model="startTime" required
+                                class="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">End Time</label>
+                            <input type="time" name="end_time" x-model="endTime" required
+                                class="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Room</label>
+                            <input type="text" name="room" x-model="room" placeholder="e.g. 1A"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-6 pt-3 border-t">
+                    <button type="button" @click="isOpen = false"
+                        class="px-4 py-2 border text-gray-600 text-sm rounded-lg hover:bg-gray-50">Cancel</button>
+                    <button type="submit"
+                        class="px-5 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 shadow-sm">Save
+                        Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script>
+    function timetableModal() {
+        return {
+            isOpen: false,
+            entryId: '',
+            selectedDay: 'Monday',
+            selectedSubject: '',
+            selectedTeacher: '',
+            startTime: '08:00',
+            endTime: '09:00',
+            room: '',
+            openModal(data = {}) {
+                this.entryId = data.id || '';
+                this.selectedDay = data.day || 'Monday';
+                this.selectedSubject = data.subject || '';
+                this.selectedTeacher = data.teacher || '';
+                this.room = data.room || '';
+                this.startTime = data.start || '08:00';
+                this.endTime = data.end || '09:00';
+                this.isOpen = true;
+            },
+            getFormUrl() {
+                if (this.entryId) {
+                    return '/school-admin/timetable/' + this.entryId + '/edit/';
+                }
+                return '{% url "school_admin:timetable_create" %}';
+            }
+        }
+    }
+</script>
+{% endblock %}

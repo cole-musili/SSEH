@@ -1,0 +1,39 @@
+{% extends "school_admin/base.html" %}
+{% block content %}
+<div class="container mt-6">
+    <h1 class="text-2xl font-bold mb-4 text-green-700">Terms</h1>
+    <a href="{% url 'school_admin:term_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded mb-3 inline-block">
+        <img src="{% static 'icons/add.svg' %}" class="inline w-4 h-4 mr-1"> Add Term
+    </a>
+    <table class="table-auto w-full border">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="px-4 py-2">Term</th>
+                <th class="px-4 py-2">Academic Year</th>
+                <th class="px-4 py-2">Dates</th>
+                <th class="px-4 py-2">Current</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in terms %}
+            <tr>
+                <td class="border px-4 py-2">{{ t.name }}</td>
+                <td class="border px-4 py-2">{{ t.academic_year }}</td>
+                <td class="border px-4 py-2">{{ t.start_date }} → {{ t.end_date }}</td>
+                <td class="border px-4 py-2">
+                    {% if t.is_current %}
+                    <img src="{% static 'icons/check.svg' %}" class="inline w-4 h-4 text-green-600">
+                    {% else %}
+                    <span class="text-gray-500">–</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center py-3">No terms yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

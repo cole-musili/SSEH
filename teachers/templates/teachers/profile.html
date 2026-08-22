@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Teacher Profile{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white rounded-2xl shadow border border-gray-200 p-6 sm:p-8 mt-10">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-green-700 flex items-center gap-2">
+            <i data-lucide="user" class="w-6 h-6"></i>
+            Teacher Profile
+        </h1>
+        <a href="{% url 'teachers:teacher_dashboard' %}" class="text-sm text-green-600 hover:underline">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <p class="text-sm p-2 rounded {{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Profile Picture -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-6">
+            <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-green-600 shadow">
+                {% if teacher.profile_picture %}
+                <img id="avatarPreview" src="{{ teacher.profile_picture.url }}" alt="Profile Picture"
+                    class="object-cover w-full h-full">
+                {% else %}
+                <img id="avatarPreview" src="/static/img/default-avatar.png" alt="Profile Picture"
+                    class="object-cover w-full h-full">
+                {% endif %}
+            </div>
+
+            <div class="flex-1">
+                <label class="block text-gray-700 font-medium mb-1">Profile Picture</label>
+                <input id="id_profile_picture" type="file" name="profile_picture" accept="image/*"
+                    class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:outline-none">
+                <p class="text-xs text-gray-500 mt-1">PNG/JPG only • Max 3MB</p>
+            </div>
+        </div>
+
+        <p class="mt-2 text-sm">
+            <strong class="text-gray-700">Status:</strong>
+            <span class="font-semibold capitalize" {% if teacher.status == 'active' %} style="color: #16a34a;" <!-- green -->
+                {% elif teacher.status == 'on_duty' %}
+                style="color: #ca8a04;" <!-- golden -->
+                {% elif teacher.status == 'on_leave' %}
+                style="color: #2563eb;" <!-- blue -->
+                {% elif teacher.status == 'suspended' %}
+                style="color: #dc2626;" <!-- red -->
+                {% elif teacher.status == 'graduated' %}
+                style="color: #0284c7;" <!-- light blue -->
+                {% elif teacher.status == 'withdrawn' %}
+                style="color: #6b7280;" <!-- gray -->
+                {% else %}
+                style="color: #374151;" <!-- neutral -->
+                {% endif %}
+                >
+                {{ teacher_profile.get_status_display }}
+            </span>
+        </p>
+
+        <!-- Teacher Info -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
+            <p><strong>Full Name:</strong> {{ teacher.first_name }} {{ teacher.last_name }}</p>
+            <p><strong>Username:</strong> {{ teacher.username }}</p>
+            <p><strong>Email:</strong> {{ teacher.email|default:"—" }}</p>
+            <p><strong>Teacher ID:</strong> {{ teacher_profile.teacher_id|default:"—" }}</p>
+            <p><strong>Joined:</strong> {{ teacher.date_joined|date:"M d, Y" }}</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <a href="{% url 'accounts:change_password' %}"
+                class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium">
+                <i data-lucide="lock" class="w-4 h-4"></i> Change Password
+            </a>
+            <button type="submit"
+                class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow transition text-sm font-medium">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Live Image Preview -->
+<script>
+    const fileInput = document.getElementById('id_profile_picture');
+    const previewImg = document.getElementById('avatarPreview');
+    const MAX_MB = 3;
+
+    fileInput?.addEventListener('change', e => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file (PNG or JPG).');
+            fileInput.value = '';
+            return;
+        }
+        if (file.size > MAX_MB * 1024 * 1024) {
+            alert(`Please choose an image under ${MAX_MB}MB.`);
+            fileInput.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = ev => previewImg.src = ev.target.result;
+        reader.readAsDataURL(file);
+    });
+</script>
+{% endblock %}

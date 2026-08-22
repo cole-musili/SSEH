@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Learning Resources{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-green-700">Learning Resources</h1>
+            <p class="text-gray-500 text-sm mt-1">
+                Access, share, and manage uploaded learning materials.
+            </p>
+        </div>
+        {% if request.user.is_teacher or request.user.is_superuser %}
+        <a href="{% url 'resources:upload_resource' %}"
+            class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2.5 rounded-lg shadow-sm border border-green-700/10 transition">
+            <i data-lucide="upload" class="w-4 h-4"></i>
+            <span>Upload Resource</span>
+        </a>
+        {% endif %}
+    </div>
+
+    {% if resources %}
+    <!-- Desktop Table -->
+    <div class="hidden md:block bg-white shadow-md rounded-xl border border-gray-200 overflow-x-auto">
+        <table class="min-w-full text-sm text-gray-800">
+            <thead class="bg-gray-100 text-gray-600 uppercase text-xs font-semibold">
+                <tr>
+                    <th class="py-3 px-4 text-left">Title</th>
+                    <th class="py-3 px-4 text-left">Uploader</th>
+                    <th class="py-3 px-4 text-center">Visibility</th>
+                    <th class="py-3 px-4 text-center">Downloads</th>
+                    <th class="py-3 px-4 text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for r in resources %}
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="py-3 px-4 font-semibold text-gray-900">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-4 h-4 text-green-600"></i>
+                            {{ r.title }}
+                        </div>
+                    </td>
+
+                    <!-- Uploader with profile image -->
+                    <td class="py-3 px-4">
+                        <div class="flex items-center gap-3">
+                            {% if r.uploader.profile_picture %}
+                            <img src="{{ r.uploader.profile_picture.url }}" alt="Uploader photo"
+                                class="w-8 h-8 rounded-full object-cover border border-gray-300 shadow-sm">
+                            {% elif r.uploader.is_student and r.uploader.studentprofile.photo %}
+                            <img src="{{ r.uploader.studentprofile.photo.url }}" alt="Uploader photo"
+                                class="w-8 h-8 rounded-full object-cover border border-gray-300 shadow-sm">
+                            {% else %}
+                            <img src="/static/img/default-avatar.png" alt="Default Avatar"
+                                class="w-8 h-8 rounded-full object-cover border border-gray-200">
+                            {% endif %}
+                            <span class="text-gray-700 font-medium">
+                                {{ r.uploader.first_name }} {{ r.uploader.last_name }}
+                                <span class="text-gray-500 text-xs block">@{{ r.uploader.username }}</span>
+                            </span>
+                        </div>
+                    </td>
+
+                    <td class="py-3 px-4 text-center capitalize">
+                        <span class="px-2 py-0.5 rounded bg-green-50 text-green-700 border border-green-100 text-xs">
+                            {{ r.visibility }}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-center">{{ r.download_count }}</td>
+
+                    <!-- Actions -->
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex justify-center gap-3">
+                            <a href="{% url 'resources:download_resource' r.id %}"
+                                class="inline-flex items-center gap-1 text-green-700 hover:text-green-900 font-medium transition">
+                                <i data-lucide="download" class="w-4 h-4"></i> Download
+                            </a>
+                            {% if request.user == r.uploader or request.user.is_superuser %}
+                            <a href="{% url 'resources:delete_resource' r.id %}"
+                                class="inline-flex items-center gap-1 text-red-600 hover:text-red-800 font-medium transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="md:hidden space-y-4">
+        {% for r in resources %}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center gap-3 mb-3">
+                {% if r.uploader.profile_picture %}
+                <img src="{{ r.uploader.profile_picture.url }}" alt="Uploader"
+                    class="w-10 h-10 rounded-full object-cover">
+                {% elif r.uploader.is_student and r.uploader.studentprofile.photo %}
+                <img src="{{ r.uploader.studentprofile.photo.url }}" alt="Uploader"
+                    class="w-10 h-10 rounded-full object-cover">
+                {% else %}
+                <img src="/static/img/default-avatar.png" alt="Default Avatar"
+                    class="w-10 h-10 rounded-full object-cover">
+                {% endif %}
+                <div>
+                    <h3 class="font-semibold text-gray-900 text-lg">{{ r.title }}</h3>
+                    <p class="text-xs text-gray-500">@{{ r.uploader.username }}</p>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center text-sm text-gray-600">
+                <span class="px-2 py-0.5 rounded bg-green-50 text-green-700 text-xs capitalize">{{ r.visibility
+                    }}</span>
+                <span><i data-lucide="download" class="w-4 h-4 inline text-gray-400"></i> {{ r.download_count }}</span>
+            </div>
+
+            <div class="mt-4 flex gap-2">
+                <a href="{% url 'resources:download_resource' r.id %}"
+                    class="flex-1 text-center bg-green-600 hover:bg-green-700 text-white py-2 rounded text-sm font-medium transition">
+                    Download
+                </a>
+                {% if request.user == r.uploader or request.user.is_superuser %}
+                <a href="{% url 'resources:delete_resource' r.id %}"
+                    class="flex-1 text-center bg-red-600 hover:bg-red-700 text-white py-2 rounded text-sm font-medium transition">
+                    Delete
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div
+        class="text-center py-12 text-gray-500 text-sm bg-gray-50 border border-dashed border-gray-300 rounded-xl shadow-sm mt-10">
+        <i data-lucide="folder-open" class="w-10 h-10 mx-auto mb-3 text-gray-400"></i>
+        No learning resources available yet.<br>
+        {% if request.user.is_teacher %}
+        <a href="{% url 'resources:upload_resource' %}" class="text-green-600 hover:underline font-medium">
+            Click here to upload one.
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

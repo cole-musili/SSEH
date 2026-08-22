@@ -1,0 +1,44 @@
+/* static/css/global.css */
+:root {
+    --primary-green: #16a34a;
+    --secondary-green: #22c55e;
+    --dark-text: #1e293b;
+    --light-bg: #f9fafb;
+}
+
+body {
+    background-color: var(--light-bg);
+    font-family: 'Inter', sans-serif;
+    color: var(--dark-text);
+}
+
+.card {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+}
+
+.btn {
+    @apply inline-flex items-center px-4 py-2 rounded text-white font-medium transition;
+}
+
+.btn-green {
+    @apply bg-green-600 hover:bg-green-700;
+}
+
+.btn-blue {
+    @apply bg-blue-600 hover:bg-blue-700;
+}
+
+.btn-red {
+    @apply bg-red-600 hover:bg-red-700;
+}
+
+.btn-gray {
+    @apply bg-gray-600 hover:bg-gray-700;
+}
+
+.table-header {
+    @apply bg-gray-100 text-gray-700 text-sm uppercase tracking-wide;
+}

@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-10">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="flex items-center gap-2 text-3xl font-bold text-green-700">
+                <i data-lucide="chalkboard-teacher" class="w-7 h-7"></i>
+                Welcome, {{ request.user.first_name|default:request.user.username }}!
+            </h1>
+            <p class="text-gray-500 text-sm mt-1">
+                Your teaching overview — track classes, quizzes, and performance progress.
+            </p>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <!-- Profile -->
+            <a href="{% url 'teachers:teacher_profile' %}"
+                class="flex items-center justify-center w-10 h-10 rounded-full bg-green-100 hover:bg-green-200 transition">
+                <i data-lucide="user" class="w-5 h-5 text-green-700"></i>
+            </a>
+
+            <!-- Logout -->
+            <a href="{% url 'accounts:logout' %}"
+                class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow transition">
+                <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <a href="{% url 'teachers:create_quiz' %}"
+            class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-lg shadow transition text-sm">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> Create Quiz
+        </a>
+        <a href="{% url 'teachers:quiz_list_teacher' %}"
+            class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg shadow transition text-sm">
+            <i data-lucide="list" class="w-4 h-4"></i> Manage Quizzes
+        </a>
+        <a href="{% url 'communications:teacher_message_list' %}"
+            class="flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-3 rounded-lg shadow transition text-sm">
+            <i data-lucide="message-square" class="w-4 h-4"></i> Messages
+        </a>
+        <a href="{% url 'teachers:my_timetable' %}"
+            class="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-lg shadow transition text-sm">
+            <i data-lucide="calendar" class="w-4 h-4"></i> My Timetable
+        </a>
+    </div>
+
+    {% if stats.total_quizzes %}
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+        <div class="bg-white border border-green-200 rounded-xl p-5 shadow">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-sm text-gray-600">Total Quizzes</h3>
+                    <p class="text-3xl font-bold text-green-700">{{ stats.total_quizzes }}</p>
+                </div>
+                <i data-lucide="book-open" class="w-8 h-8 text-green-600"></i>
+            </div>
+        </div>
+        <div class="bg-white border border-blue-200 rounded-xl p-5 shadow">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-sm text-gray-600">Active Streams</h3>
+                    <p class="text-3xl font-bold text-blue-600">{{ stats.total_streams }}</p>
+                </div>
+                <i data-lucide="layers" class="w-8 h-8 text-blue-600"></i>
+            </div>
+        </div>
+        <div class="bg-white border border-yellow-200 rounded-xl p-5 shadow">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-sm text-gray-600">Students Engaged</h3>
+                    <p class="text-3xl font-bold text-yellow-600">{{ stats.total_students }}</p>
+                </div>
+                <i data-lucide="users" class="w-8 h-8 text-yellow-500"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Summary -->
+    <div class="bg-white p-6 rounded-xl shadow border border-gray-200 mb-10">
+        <button class="w-full flex justify-between items-center text-left focus:outline-none"
+            onclick="toggleProfileSummary()">
+            <h2 class="flex items-center gap-2 text-xl font-semibold text-green-700">
+                <i data-lucide="user" class="w-5 h-5"></i> Profile Summary
+            </h2>
+            <i id="profileArrow" data-lucide="chevron-down"
+                class="w-5 h-5 text-green-600 transition-transform duration-300"></i>
+        </button>
+
+        <div id="profileContent" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
+            <p><strong>Full Name:</strong> {{ request.user.first_name }} {{ request.user.last_name }}</p>
+            <p><strong>Username:</strong> {{ request.user.username }}</p>
+            <p><strong>Email:</strong> {{ request.user.email|default:"—" }}</p>
+            {% if request.user.teacherprofile.teacher_id %}
+            <p><strong>Teacher ID:</strong> {{ request.user.teacherprofile.teacher_id }}</p>
+            {% endif %}
+            <p><strong>Joined On:</strong> {{ request.user.date_joined|date:"M d, Y" }}</p>
+        </div>
+    </div>
+
+    <!-- Quizzes Overview -->
+    <div class="bg-white border border-gray-200 rounded-xl shadow overflow-hidden">
+        <h2 class="px-6 py-4 text-xl font-semibold text-green-700 border-b">Quiz Overview</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm text-gray-700">
+                <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                    <tr>
+                        <th class="py-3 px-4 text-left">Quiz Title</th>
+                        <th class="py-3 px-4 text-left">Stream</th>
+                        <th class="py-3 px-4 text-center">Attempted</th>
+                        <th class="py-3 px-4 text-center">Progress</th>
+                        <th class="py-3 px-4 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for item in quiz_progress %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="py-3 px-4 font-semibold">{{ item.quiz.title }}</td>
+                        <td class="py-3 px-4 text-gray-600">{{ item.stream.grade.name }} {{ item.stream.code }}</td>
+                        <td class="py-3 px-4 text-center">{{ item.attempted_students }}/{{ item.total_students }}</td>
+                        <td class="py-3 px-4 text-center">
+                            {% if item.total_students > 0 %}
+                            {% widthratio item.attempted_students item.total_students 100 as progress %}
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-green-600 h-2.5 rounded-full" style="width: {{ progress }}%;"></div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">{{ progress }}%</p>
+                            {% else %}
+                            <span class="text-gray-400 italic">No students</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <a href="{% url 'teachers:quiz_results_teacher' item.quiz.id %}"
+                                class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium">
+                                <i data-lucide="bar-chart-3" class="w-4 h-4"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center text-gray-500 italic mt-10">No quizzes created yet.</div>
+    {% endif %}
+</div>
+
+<!-- Collapsible script -->
+<script>
+    function toggleProfileSummary() {
+        const content = document.getElementById("profileContent");
+        const arrow = document.getElementById("profileArrow");
+        content.classList.toggle("hidden");
+        arrow.classList.toggle("rotate-180");
+    }
+</script>
+
+{% endblock %}

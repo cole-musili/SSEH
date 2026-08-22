@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Add Question - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<h2>Add Question to Quiz: "{{ quiz.title }}"</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Question</button>
+</form>
+
+<hr>
+
+<h3>Questions Added</h3>
+{% if questions %}
+<ol>
+    {% for question in questions %}
+    <li>{{ question.text }}</li>
+    {% endfor %}
+</ol>
+{% else %}
+<p>No questions added yet.</p>
+{% endif %}
+
+<a href="{% url 'teachers:dashboard' %}">Finish Quiz</a>
+{% endblock %}

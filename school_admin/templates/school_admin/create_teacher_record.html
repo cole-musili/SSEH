@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Add Teacher Record{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6 max-w-2xl">
+    <h1 class="text-3xl font-bold text-green-700 mb-6">🧑‍🏫 Add Teacher Record</h1>
+
+    <form method="POST" enctype="multipart/form-data" class="bg-white shadow p-6 rounded-lg border border-gray-200">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit"
+            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-lg shadow transition mt-4">
+            💾 Save Record
+        </button>
+    </form>
+</div>
+{% endblock %}

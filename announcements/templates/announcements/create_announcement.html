@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ mode }} Announcement{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white p-6 shadow rounded-lg mt-8 border border-gray-200">
+    <h1 class="text-2xl font-bold text-green-700 mb-6 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        {{ mode }} Announcement
+    </h1>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-5">
+        {% csrf_token %}
+
+        <!-- Title -->
+        <div>
+            <label class="block text-gray-700 font-medium mb-1">Title</label>
+            {{ form.title }}
+        </div>
+
+        <!-- Body -->
+        <div>
+            <label class="block text-gray-700 font-medium mb-1">Body</label>
+            {{ form.body }}
+        </div>
+
+        <!-- Image -->
+        <div>
+            <label class="block text-gray-700 font-medium mb-1">Image (optional)</label>
+            {{ form.image }}
+        </div>
+
+        <!-- Publish toggle -->
+        <div>
+            <label class="block text-gray-700 font-medium mb-1">Publish Now?</label>
+            {{ form.is_published }}
+        </div>
+
+        <!-- Submit / Cancel -->
+        <div class="flex justify-end gap-3">
+            <a href="{% url 'announcements:manage_announcements' %}"
+                class="text-gray-600 hover:text-gray-800 px-4 py-2 rounded">
+                Cancel
+            </a>
+            <button type="submit"
+                class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded shadow flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                {{ mode }}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

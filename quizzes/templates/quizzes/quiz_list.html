@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Available Quizzes</h2>
+
+<ul>
+    {% for quiz in quizzes %}
+    <li>
+        {{ quiz.title }}
+        {% if user.is_student %}
+        <a href="{% url 'quizzes:take_quiz' quiz.id %}">Take Quiz</a>
+        {% else %}
+        <a href="{% url 'quizzes:add_question' quiz.id %}">Add Question</a>
+        <a href="{% url 'quizzes:quiz_results' quiz.id %}">View Results</a>
+        {% endif %}
+    </li>
+    {% empty %}
+    <li>No quizzes available.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

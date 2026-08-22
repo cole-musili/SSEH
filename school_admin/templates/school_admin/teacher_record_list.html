@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Teacher Records{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-3">
+        <h1 class="text-3xl font-bold text-green-700 text-center sm:text-left">📋 Teacher Records</h1>
+        <a href="{% url 'school_admin:create_teacher_record' %}"
+            class="bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 shadow transition">
+            ➕ Add Teacher
+        </a>
+    </div>
+
+    {% if teachers %}
+    <!-- Table -->
+    <div class="overflow-x-auto bg-white shadow-lg rounded-xl border border-gray-200">
+        <table class="min-w-full text-sm text-left text-gray-700">
+            <thead class="bg-green-50 text-gray-600 uppercase text-xs">
+                <tr>
+                    <th class="py-3 px-4">Photo</th>
+                    <th class="py-3 px-4">Name</th>
+                    <th class="py-3 px-4">Subject</th>
+                    <th class="py-3 px-4">Streams</th>
+                    <th class="py-3 px-4">Status</th>
+                    <th class="py-3 px-4 text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in teachers %}
+                <tr class="border-t hover:bg-gray-50 transition">
+                    <!-- Photo -->
+                    <td class="py-3 px-4">
+                        {% if t.photo %}
+                        <img src="{{ t.photo.url }}" alt="{{ t.full_name }}"
+                            class="w-12 h-12 rounded-full object-cover border border-gray-300 shadow-sm">
+                        {% else %}
+                        <div
+                            class="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-semibold">
+                            {{ t.full_name|slice:":1" }}
+                        </div>
+                        {% endif %}
+                    </td>
+
+                    <!-- Name -->
+                    <td class="py-3 px-4 font-medium">
+                        <a href="{% url 'school_admin:teacher_detail' t.id %}"
+                            class="text-green-700 hover:underline font-semibold">
+                            {{ t.full_name }}
+                        </a>
+                        <div class="text-gray-500 text-xs">{{ t.email }}</div>
+                    </td>
+
+                    <!-- Subject -->
+                    <td class="py-3 px-4">{{ t.specialization.name|default:"—" }}</td>
+
+                    <!-- Streams -->
+                    <td class="py-3 px-4">
+                        {% for s in t.assigned_streams.all %}
+                        <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded mr-1 mb-1 inline-block">
+                            {{ s.code }}
+                        </span>
+                        {% empty %}
+                        <span class="text-gray-400 italic">None</span>
+                        {% endfor %}
+                    </td>
+
+                    <!-- Status -->
+                    <td class="py-3 px-4">
+                        <span class="text-sm px-2 py-1 rounded 
+                            {% if t.status == 'active' %}
+                                bg-green-100 text-green-700
+                            {% elif t.status == 'leave' %}
+                                bg-yellow-100 text-yellow-700
+                            {% else %}
+                                bg-gray-100 text-gray-600
+                            {% endif %}">
+                            {{ t.get_status_display }}
+                        </span>
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="py-3 px-4 text-center">
+                        <a href="{% url 'school_admin:teacher_detail' t.id %}"
+                            class="inline-flex items-center gap-1 bg-green-600 text-white px-3 py-1.5 rounded hover:bg-green-700 text-xs shadow">
+                            👁️ View
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-5 rounded text-yellow-800 mt-6 text-center">
+        ⚠️ No teacher records found.<br>
+        <span class="text-sm">Use the <strong>Add Teacher</strong> button above to create one.</span>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

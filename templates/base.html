@@ -1,0 +1,267 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Smart School Hub{% endblock %}</title>
+
+    <!-- Tailwind & Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+
+    <!-- Prevent flash -->
+    <script>
+        const t = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (t === 'dark' || (!t && prefersDark)) document.documentElement.classList.add('dark');
+    </script>
+</head>
+
+<body class="transition-colors duration-300 text-gray-800 dark:text-gray-100">
+
+    <!-- HEADER -->
+    <header class="shadow sticky top-0 z-50 border-b border-gray-200 dark:border-gray-700">
+        <nav class="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
+
+            <!-- Logo -->
+            <a href="/" class="flex items-center space-x-2">
+                <img src="{% static 'images/logo.png' %}" alt="School Logo"
+                    class="w-9 h-9 rounded-md hidden sm:block" />
+                <span class="text-xl font-bold text-green-700 dark:text-green-400">
+                    Smart School Hub
+                </span>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-6 text-sm">
+                <a href="/" class="hover:text-green-700 dark:hover:text-green-400">Home</a>
+
+                {% if request.user.is_authenticated %}
+                {% if request.user.is_superuser %}
+                <a href="/admin/" class="hover:text-green-700 dark:hover:text-green-400">Django Admin</a>
+                {% endif %}
+
+                {% if request.user.is_teacher %}
+                <a href="{% url 'teachers:teacher_dashboard' %}">Dashboard</a>
+                <a href="{% url 'teachers:create_quiz' %}">Create Quiz</a>
+                <a href="{% url 'communications:teacher_message_list' %}">Messages</a>
+                <a href="{% url 'resources:resource_list' %}">Resources</a>
+                <a href="{% url 'announcements:list' %}">Announcements</a>
+
+                {% elif request.user.is_student %}
+                <a href="{% url 'students:student_dashboard' %}">Dashboard</a>
+                <a href="{% url 'students:student_timetable' %}">My Timetable</a>
+                <a href="{% url 'students:results' %}">My Results</a>
+                <a href="{% url 'communications:student_message_list' %}">Messages</a>
+                <a href="{% url 'resources:resource_list' %}">Resources</a>
+                <a href="{% url 'announcements:list' %}">Announcements</a>
+
+                {% elif request.user.is_parent %}
+                <a href="{% url 'parents:parent_dashboard' %}">Dashboard</a>
+                <a href="{% url 'announcements:list' %}">Noticeboard</a>
+                <a href="{% url 'communications:parent_message_list' %}">Messages</a>
+                <a href="{% url 'resources:resource_list' %}">Resources</a>
+
+                {% elif request.user.is_school_admin or request.user.is_superuser %}
+                <a href="{% url 'school_admin:admin_dashboard' %}">Admin Dashboard</a>
+                <a href="{% url 'school_admin:timetable_list' %}">Timetables</a>
+                <a href="{% url 'resources:resource_list' %}">Resources</a>
+                <a href="{% url 'announcements:list' %}">Announcements</a>
+                <a href="{% url 'school_admin:manage_user_status' %}">Manage Users</a>
+                <a href="{% url 'support:admin_inbox' %}">Messages</a>
+                {% endif %}
+                {% endif %}
+            </div>
+
+            <!-- Right Side -->
+            <div class="flex items-center space-x-4">
+
+                <!-- Theme Toggle -->
+                <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400 hidden"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.36 4.95l-.7-.7M6.05 6.05l-.7-.7m12.02 12.02l-.7-.7M6.05 17.95l-.7-.7M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                    </svg>
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 text-gray-700 dark:text-gray-200 hidden" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20.354 15.354A9 9 0 118.646 3.646a7 7 0 1011.708 11.708z" />
+                    </svg>
+                </button>
+
+                {% if request.user.is_authenticated %}
+                <!-- Profile Dropdown -->
+                <div class="relative">
+                    <button id="profileBtn" class="flex items-center space-x-2 focus:outline-none">
+                        <img src="{% if request.user.profile_picture %}
+                          {{ request.user.profile_picture.url }}
+                        {% elif request.user.is_student and request.user.studentprofile.photo %}
+                          {{ request.user.studentprofile.photo.url }}
+                        {% elif request.user.is_parent and request.user.parentprofile.photo %}
+                          {{ request.user.parentprofile.photo.url }}
+                        {% elif request.user.is_school_admin and request.user.school_admin_profile.photo %}
+                          {{ request.user.school_admin_profile.photo.url }}
+                        {% else %}
+                          {% static 'img/default-avatar.png' %}
+                        {% endif %}" alt="Avatar" class="w-9 h-9 rounded-full border border-gray-300 object-cover" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600 dark:text-gray-300"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <div id="profileMenu"
+                        class="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-md py-2 hidden">
+
+                        {% if request.user.is_student %}
+                        <a href="{% url 'students:profile_settings' %}"
+                            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-green-50 dark:hover:bg-gray-700">
+                            <i data-lucide="user" class="w-4 h-4"></i> Profile Settings
+                        </a>
+                        {% elif request.user.is_teacher %}
+                        <a href="{% url 'teachers:teacher_profile' %}"
+                            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-green-50 dark:hover:bg-gray-700">
+                            <i data-lucide="user" class="w-4 h-4"></i> Profile Settings
+                        </a>
+                        {% elif request.user.is_parent %}
+                        <a href="{% url 'parents:profile_settings' %}"
+                            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-green-50 dark:hover:bg-gray-700">
+                            <i data-lucide="user" class="w-4 h-4"></i> Profile Settings
+                        </a>
+                        {% elif request.user.is_school_admin %}
+                        <a href="{% url 'school_admin:profile_settings' %}"
+                            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-green-50 dark:hover:bg-gray-700">
+                            <i data-lucide="user" class="w-4 h-4"></i> Profile Settings
+                        </a>
+                        {% endif %}
+
+                        <a href="{% url 'accounts:change_password' %}"
+                            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-green-50 dark:hover:bg-gray-700">
+                            <i data-lucide="lock" class="w-4 h-4"></i> Change Password
+                        </a>
+
+                        <div class="border-t my-1 dark:border-gray-600"></div>
+
+                        <a href="{% url 'accounts:logout' %}"
+                            class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-gray-700 font-medium">
+                            <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{% url 'accounts:login' %}"
+                    class="bg-green-600 text-white px-3 py-1.5 rounded hover:bg-green-700 transition">Login</a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobileMenuBtn" class="md:hidden ml-4 focus:outline-none">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden bg-white dark:bg-gray-800 border-t shadow-md md:hidden">
+            <div class="flex flex-col p-4 space-y-2 text-sm">
+                <a href="/">Home</a>
+
+                {% if request.user.is_authenticated %}
+                {% if request.user.is_teacher %}
+                <a href="{% url 'teachers:teacher_dashboard' %}">Dashboard</a>
+                <a href="{% url 'communications:teacher_message_list' %}">Messages</a>
+                <a href="{% url 'resources:resource_list' %}">Resources</a>
+                {% elif request.user.is_student %}
+                <a href="{% url 'students:student_dashboard' %}">Dashboard</a>
+                <a href="{% url 'students:results' %}">Results</a>
+                <a href="{% url 'communications:student_message_list' %}">Messages</a>
+                {% elif request.user.is_parent %}
+                <a href="{% url 'parents:parent_dashboard' %}">Dashboard</a>
+                <a href="{% url 'communications:parent_message_list' %}">Messages</a>
+                <a href="{% url 'resources:resource_list' %}">Resources</a>
+                {% elif request.user.is_school_admin or request.user.is_superuser %}
+                <a href="{% url 'school_admin:admin_dashboard' %}">Dashboard</a>
+                <a href="{% url 'school_admin:timetable_list' %}">Timetables</a>
+                <a href="{% url 'resources:resource_list' %}">Resources</a>
+                <a href="{% url 'announcements:list' %}">Announcements</a>
+                <a href="{% url 'school_admin:manage_user_status' %}">Manage Users</a>
+                <a href="{% url 'support:admin_inbox' %}">Messages</a>
+                {% endif %}
+                <a href="{% url 'accounts:logout' %}" class="text-red-600 font-semibold">Logout</a>
+                {% else %}
+                <a href="{% url 'accounts:login' %}"
+                    class="bg-green-600 text-white text-center rounded py-2 hover:bg-green-700">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="max-w-6xl mx-auto px-6 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t mt-10 py-4 text-center text-gray-600 dark:text-gray-400">
+        <p>© {{ now|date:"Y" }} Smart School Engagement Hub — Built for better learning.</p>
+    </footer>
+
+    <!-- JS -->
+    <script>
+        const html = document.documentElement;
+        const toggle = document.getElementById('themeToggle');
+        const sun = document.getElementById('sunIcon');
+        const moon = document.getElementById('moonIcon');
+
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                html.classList.add('dark');
+                sun.classList.remove('hidden');
+                moon.classList.add('hidden');
+            } else {
+                html.classList.remove('dark');
+                sun.classList.add('hidden');
+                moon.classList.remove('hidden');
+            }
+            localStorage.setItem('theme', theme);
+        }
+
+        const current = localStorage.getItem('theme') ||
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        setTheme(current);
+
+        toggle?.addEventListener('click', () =>
+            setTheme(html.classList.contains('dark') ? 'light' : 'dark')
+        );
+
+        // ✅ dropdowns restored
+        const profileBtn = document.getElementById('profileBtn');
+        const profileMenu = document.getElementById('profileMenu');
+        if (profileBtn && profileMenu) {
+            profileBtn.addEventListener('click', () => {
+                profileMenu.classList.toggle('hidden');
+            });
+        }
+
+        const mobileBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileBtn && mobileMenu) {
+            mobileBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+
+        lucide.createIcons();
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+    
+</html>

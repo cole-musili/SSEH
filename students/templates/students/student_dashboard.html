@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-8">
+
+    <!-- ===== DASHBOARD HEADER ===== -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="flex items-center gap-2 text-3xl font-bold text-green-700">
+                <i data-lucide="graduation-cap" class="w-7 h-7"></i>
+                Welcome back, {{ student.user.first_name }} {{ student.user.last_name }}!
+            </h1>
+            <p class="text-gray-500 mt-1 text-sm">
+                Username: <span class="font-semibold text-gray-700">{{ student.user.username }}</span> |
+                School ID: <span class="font-semibold text-gray-700">{{ student.student_id|default:"—" }}</span>
+            </p>
+            <p class="text-gray-500 mt-1 text-sm">
+                Your personal learning dashboard — track progress, quizzes, and updates.
+            </p>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <!-- Profile Settings -->
+            <a href="{% url 'students:profile_settings' %}"
+                class="flex items-center justify-center w-10 h-10 rounded-full bg-green-100 hover:bg-green-200 transition">
+                <i data-lucide="user-cog" class="w-5 h-5 text-green-700"></i>
+            </a>
+
+            <!-- Logout -->
+            <a href="{% url 'accounts:logout' %}"
+                class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow transition">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- ===== SUMMARY CARDS ===== -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white shadow rounded-xl p-5 text-center border-t-4 border-green-500">
+            <i data-lucide="book-open" class="w-6 h-6 text-green-600 mx-auto mb-1"></i>
+            <p class="text-gray-500 text-sm">Total Quizzes</p>
+            <h2 class="text-3xl font-bold text-green-700 mt-1">{{ total_quizzes }}</h2>
+        </div>
+
+        <div class="bg-white shadow rounded-xl p-5 text-center border-t-4 border-blue-500">
+            <i data-lucide="check-circle" class="w-6 h-6 text-blue-600 mx-auto mb-1"></i>
+            <p class="text-gray-500 text-sm">Completed</p>
+            <h2 class="text-3xl font-bold text-blue-600 mt-1">{{ completed_count }}</h2>
+        </div>
+
+        <div class="bg-white shadow rounded-xl p-5 text-center border-t-4 border-yellow-400">
+            <i data-lucide="bar-chart-3" class="w-6 h-6 text-yellow-500 mx-auto mb-1"></i>
+            <p class="text-gray-500 text-sm">Average Score</p>
+            <h2 class="text-3xl font-bold text-yellow-500 mt-1">
+                {% if avg_score %}{{ avg_score }}%{% else %}—{% endif %}
+            </h2>
+        </div>
+
+        <div class="bg-white shadow rounded-xl p-5 text-center border-t-4 border-purple-500">
+            <i data-lucide="award" class="w-6 h-6 text-purple-600 mx-auto mb-1"></i>
+            <p class="text-gray-500 text-sm">Grade</p>
+            <h2 class="text-2xl font-semibold text-purple-600 mt-1">
+                {{ student.grade|default:"N/A" }}
+            </h2>
+        </div>
+    </div>
+
+    <!-- ===== QUICK NAVIGATION ===== -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-10">
+        <a href="{% url 'students:results' %}"
+            class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 rounded-xl shadow transition">
+            <i data-lucide="bar-chart-big" class="w-5 h-5"></i>
+            My Results
+        </a>
+
+        <a href="{% url 'communications:student_message_list' %}"
+            class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-4 rounded-xl shadow transition">
+            <i data-lucide="message-square" class="w-5 h-5"></i>
+            Messages
+        </a>
+
+        <a href="{% url 'students:take_quiz_list' %}"
+            class="flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-4 rounded-xl shadow transition">
+            <i data-lucide="puzzle" class="w-5 h-5"></i>
+            Take a Quiz
+        </a>
+
+        <a href="{% url 'students:student_timetable' %}"
+            class="flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-800 text-white font-medium py-4 rounded-xl shadow transition">
+            <i data-lucide="calendar" class="w-5 h-5"></i>
+            View Timetable
+        </a>
+    </div>
+
+    <!-- ===== PROFILE SUMMARY ===== -->
+    <div class="bg-white p-6 rounded-xl shadow mb-10 border border-gray-200">
+        <button class="w-full flex justify-between items-center text-left focus:outline-none"
+            onclick="toggleProfileSummary()">
+            <h2 class="flex items-center gap-2 text-xl font-semibold text-green-700">
+                <i data-lucide="user" class="w-5 h-5"></i>
+                Profile Summary
+            </h2>
+            <i id="profileArrow" data-lucide="chevron-down"
+                class="w-5 h-5 text-green-600 transition-transform duration-300"></i>
+        </button>
+
+        <div id="profileContent" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+            <p><strong>Full Name:</strong> {{ student.user.first_name }} {{ student.user.last_name }}</p>
+            <p><strong>Username:</strong> {{ student.user.username }}</p>
+            <p><strong>School ID:</strong> {{ student.student_id|default:"—" }}</p>
+            <p><strong>Email:</strong> {{ student.user.email|default:"—" }}</p>
+
+            <p><strong>Class:</strong>
+                {% if student.stream %}
+                {{ student.stream.grade.name }} {{ student.stream.code }}
+                {% else %}
+                Not assigned
+                {% endif %}
+            </p>
+
+            <p><strong>Grade:</strong> {{ student.grade|default:"N/A" }}</p>
+
+            {% if student.parent %}
+            <p><strong>Parent:</strong> {{ student.parent.first_name }} {{ student.parent.last_name }}</p>
+            {% endif %}
+
+            {% if student.date_of_birth %}
+            <p><strong>Date of Birth:</strong> {{ student.date_of_birth|date:"M d, Y" }}</p>
+            {% endif %}
+
+            <p><strong>Joined On:</strong> {{ student.user.date_joined|date:"M d, Y" }}</p>
+
+            {% if student.address %}
+            <p class="md:col-span-2"><strong>Address:</strong> {{ student.address }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Collapsible Script -->
+    <script>
+        function toggleProfileSummary() {
+            const content = document.getElementById("profileContent");
+            const arrow = document.getElementById("profileArrow");
+            content.classList.toggle("hidden");
+            arrow.classList.toggle("rotate-180");
+        }
+    </script>
+
+    <!-- ===== QUIZZES TABLE ===== -->
+    <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
+        <h2 class="flex items-center gap-2 text-xl font-semibold text-green-700 mb-4">
+            <i data-lucide="book-check" class="w-5 h-5"></i>
+            Available & Completed Quizzes
+        </h2>
+
+        {% if quizzes %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full border border-gray-200 text-sm">
+                <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                    <tr>
+                        <th class="py-3 px-4 text-left">Title</th>
+                        <th class="py-3 px-4 text-left">Description</th>
+                        <th class="py-3 px-4 text-center">Status</th>
+                        <th class="py-3 px-4 text-center">Score</th>
+                        <th class="py-3 px-4 text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-700">
+                    {% for item in quizzes %}
+                    <tr class="border-t hover:bg-green-50 transition">
+                        <td class="py-3 px-4">{{ item.quiz.title }}</td>
+                        <td class="py-3 px-4">{{ item.quiz.description|default:"—" }}</td>
+                        <td class="py-3 px-4 text-center">
+                            {% if item.result %}
+                            <span
+                                class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium">Completed</span>
+                            {% else %}
+                            <span
+                                class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-medium">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            {% if item.result %}
+                            {{ item.result.score }}
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            {% if item.result %}
+                            <a href="{% url 'students:quiz_result_detail' item.result.id %}"
+                                class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium">
+                                <i data-lucide="bar-chart-2" class="w-4 h-4"></i> View Result
+                            </a>
+                            {% else %}
+                            <a href="{% url 'students:take_quiz_start' item.quiz.id %}"
+                                class="inline-flex items-center gap-1 text-green-600 hover:text-green-800 font-medium">
+                                <i data-lucide="play-circle" class="w-4 h-4"></i> Take Quiz
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-gray-500 py-6">No quizzes available yet.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

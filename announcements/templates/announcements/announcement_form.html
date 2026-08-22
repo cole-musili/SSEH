@@ -1,0 +1,12 @@
+{% extends "school_admin/base.html" %}
+{% block content %}
+<div class="max-w-3xl mx-auto p-6 bg-white rounded shadow">
+    <h2 class="text-2xl font-semibold mb-4">{{ mode }} Announcement</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success mt-3">{{ mode }}</button>
+        <a href="{% url 'announcements:manage_announcements' %}" class="btn btn-secondary mt-3">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="admin-container flex">
+    <aside class="w-1/5 bg-gray-100 p-4 border-r">
+        <h2 class="font-bold text-green-700 mb-3">Admin Menu</h2>
+        <ul class="space-y-2 text-sm">
+            <li><a href="{% url 'school_admin:admin_dashboard' %}" class="text-blue-700 hover:underline">Dashboard</a>
+            </li>
+            <li><a href="{% url 'school_admin:academic_year_list' %}" class="text-blue-700 hover:underline">Academic
+                    Years</a></li>
+            <li><a href="{% url 'school_admin:timetable_list' %}" class="text-blue-700 hover:underline">Timetable</a>
+            </li>
+            <li><a href="{% url 'announcements:list' %}" class="text-blue-700 hover:underline">Announcements</a></li>
+        </ul>
+    </aside>
+    <main class="flex-1 p-6">
+        {% block admin_content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

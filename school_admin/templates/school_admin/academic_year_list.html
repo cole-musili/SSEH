@@ -1,0 +1,40 @@
+{% extends "school_admin/admin_wrapper.html" %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-6">
+    <h1 class="text-2xl font-bold mb-4 text-green-700">Academic Years</h1>
+    <a href="{% url 'school_admin:academic_year_create' %}"
+        class="bg-green-600 text-white px-4 py-2 rounded mb-3 inline-block">
+        <img src="{% static 'icons/add.svg' %}" class="inline w-4 h-4 mr-1"> Add Year
+    </a>
+    <table class="table-auto w-full border">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="px-4 py-2">Start</th>
+                <th class="px-4 py-2">End</th>
+                <th class="px-4 py-2">Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for y in years %}
+            <tr>
+                <td class="border px-4 py-2">{{ y.year_start }}</td>
+                <td class="border px-4 py-2">{{ y.year_end }}</td>
+                <td class="border px-4 py-2">
+                    {% if y.is_active %}
+                    <img src="{% static 'icons/check.svg' %}" class="inline w-4 h-4 text-green-600">
+                    {% else %}
+                    <span class="text-gray-500">–</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center py-3">No academic years yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

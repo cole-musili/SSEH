@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}My Messages{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto p-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="flex items-center gap-2 text-3xl font-bold text-green-700">
+                <i data-lucide="message-square" class="w-7 h-7"></i>
+                My Messages
+            </h1>
+            <p class="text-gray-500 text-sm mt-1">
+                All messages sent to you by your teachers or school.
+            </p>
+        </div>
+    </div>
+
+    {% if messages %}
+    <!-- Messages Table -->
+    <div class="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
+        <table class="min-w-full text-sm text-left text-gray-700">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr class="text-gray-600 uppercase text-xs tracking-wider">
+                    <th class="py-3 px-4 flex items-center gap-1">
+                        <i data-lucide="mail" class="w-4 h-4"></i> Title
+                    </th>
+                    <th class="py-3 px-4 flex items-center gap-1">
+                        <i data-lucide="user" class="w-4 h-4"></i> Sender
+                    </th>
+                    <th class="py-3 px-4 flex items-center gap-1">
+                        <i data-lucide="target" class="w-4 h-4"></i> Scope
+                    </th>
+                    <th class="py-3 px-4 flex items-center gap-1">
+                        <i data-lucide="calendar" class="w-4 h-4"></i> Date
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for msg in messages %}
+                <tr onclick="window.location.href='{% url 'communications:student_message_detail' msg.pk %}'"
+                    class="border-t hover:bg-green-50 transition cursor-pointer">
+                    <td class="py-3 px-4 font-medium text-gray-800">
+                        {{ msg.title }}
+                    </td>
+                    <td class="py-3 px-4">
+                        {{ msg.sender.username|default:"System" }}
+                    </td>
+                    <td class="py-3 px-4 flex items-center gap-1 text-gray-600">
+                        {% if msg.scope == "student" %}
+                        <i data-lucide="user" class="w-4 h-4 text-green-600"></i> Direct
+                        {% elif msg.scope == "stream" %}
+                        <i data-lucide="users" class="w-4 h-4 text-blue-600"></i> Class-wide
+                        {% elif msg.scope == "subject" %}
+                        <i data-lucide="book-open" class="w-4 h-4 text-yellow-600"></i> Subject
+                        {% else %}
+                        <i data-lucide="tag" class="w-4 h-4 text-gray-500"></i> {{ msg.scope|capfirst }}
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 text-gray-500 text-sm">
+                        {{ msg.created_at|date:"M d, Y H:i" }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <!-- No Messages Notice -->
+    <div
+        class="flex items-start gap-3 bg-yellow-50 border-l-4 border-yellow-500 p-5 rounded-md shadow text-yellow-800 text-sm mt-6">
+        <i data-lucide="info" class="w-5 h-5 text-yellow-600 mt-0.5"></i>
+        <p>No messages yet. You’ll see announcements or teacher updates here once available.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

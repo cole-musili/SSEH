@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}My Timetable{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-6 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-green-700 flex items-center gap-2">
+            <i data-lucide="calendar-days" class="w-6 h-6 text-green-600"></i>
+            My Timetable
+        </h1>
+        <a href="{% url 'students:student_dashboard' %}" class="text-sm text-green-700 hover:underline">← Back to
+            Dashboard</a>
+    </div>
+
+    {% if not stream %}
+    <p class="text-gray-600 italic">You are not assigned to any class stream yet.</p>
+    {% else %}
+    <p class="text-gray-500 mb-4">
+        Viewing timetable for
+        <span class="font-semibold text-green-700">
+            {{ stream.grade.name }} {{ stream.code }}
+        </span>
+    </p>
+
+    {% if entries %}
+    <div class="overflow-x-auto bg-white border rounded-xl shadow">
+        <table class="min-w-full text-sm text-gray-700">
+            <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                <tr>
+                    <th class="py-3 px-4 text-left">Day</th>
+                    <th class="py-3 px-4 text-left">Time</th>
+                    <th class="py-3 px-4 text-left">Subject</th>
+                    <th class="py-3 px-4 text-left">Teacher</th>
+                    <th class="py-3 px-4 text-left">Room</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in entries %}
+                <tr class="border-t hover:bg-green-50 transition">
+                    <td class="py-3 px-4 font-medium">{{ e.get_day_of_week_display }}</td>
+                    <td class="py-3 px-4">{{ e.start_time }}–{{ e.end_time }}</td>
+                    <td class="py-3 px-4">{{ e.subject.name }}</td>
+                    <td class="py-3 px-4">
+                        {% if e.teacher_record %}
+                        {{ e.teacher_record.full_name }}
+                        {% else %}
+                        {{ e.teacher_name|default:"—" }}
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4">{{ e.room|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center text-gray-500 py-6">
+        No timetable entries available for your stream yet.
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

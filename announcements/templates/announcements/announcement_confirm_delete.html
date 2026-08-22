@@ -1,0 +1,11 @@
+{% extends "school_admin/base.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
+    <h3>Are you sure you want to delete <strong>{{ announcement.title }}</strong>?</h3>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger mt-3">Confirm Delete</button>
+        <a href="{% url 'announcements:manage_announcements' %}" class="btn btn-secondary mt-3">Cancel</a>
+    </form>
+</div>
+{% endblock %}

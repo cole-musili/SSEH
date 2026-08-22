@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Sent Messages{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+
+    <!-- Header -->
+    <div
+        class="bg-gradient-to-r from-green-600 to-green-700 text-white rounded-t-xl shadow-lg px-6 py-5 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold flex items-center gap-2">
+                <i data-lucide="inbox" class="w-6 h-6"></i>
+                Sent Messages
+            </h1>
+            <p class="text-sm opacity-90">Messages you’ve sent to students, streams, or subjects.</p>
+        </div>
+        <a href="{% url 'communications:teacher_send_message' %}"
+            class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition">
+            + New Message
+        </a>
+    </div>
+
+    <!-- Table Section -->
+    <div class="bg-white border-x border-b border-gray-200 rounded-b-xl shadow-md overflow-x-auto">
+        {% if messages %}
+        <table class="min-w-full text-sm">
+            <thead class="bg-gray-100 text-gray-700 uppercase text-xs tracking-wider">
+                <tr>
+                    <th class="py-3 px-4 text-left">Title</th>
+                    <th class="py-3 px-4 text-left">Scope</th>
+                    <th class="py-3 px-4 text-left">Recipient</th>
+                    <th class="py-3 px-4 text-left">Sent On</th>
+                    <th class="py-3 px-4 text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for msg in messages %}
+                <tr class="border-t hover:bg-green-50 transition cursor-pointer"
+                    onclick="window.location.href='{% url 'communications:teacher_message_detail' msg.pk %}'">
+                    <td class="py-3 px-4 font-semibold text-gray-800">{{ msg.title }}</td>
+                    <td class="py-3 px-4 capitalize text-gray-600">
+                        {% if msg.scope == "student" %}
+                        Student
+                        {% elif msg.scope == "stream" %}
+                        Stream
+                        {% elif msg.scope == "subject" %}
+                        Subject
+                        {% else %}
+                        {{ msg.scope }}
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 text-gray-700">
+                        {% if msg.scope == "student" and msg.student %}
+                        {{ msg.student.user.username }}
+                        {% elif msg.scope == "stream" and msg.stream %}
+                        {{ msg.stream.grade.name }} {{ msg.stream.code }}
+                        {% elif msg.scope == "subject" and msg.subject %}
+                        {{ msg.subject.name }}
+                        {% else %}
+                        <span class="text-gray-400 italic">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 text-gray-500 text-sm">
+                        {{ msg.created_at|date:"M d, Y H:i" }}
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                        <a href="{% url 'communications:teacher_message_detail' msg.pk %}"
+                            class="text-green-700 hover:text-green-900 font-medium text-sm underline">
+                            View
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-12 text-gray-500 text-sm">
+            <i data-lucide="mail-x" class="w-10 h-10 mx-auto mb-3 text-gray-400"></i>
+            You haven’t sent any messages yet.<br>
+            Use the <span class="font-semibold text-green-600">“New Message”</span> button above to start.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Parent Messages{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <h2 class="text-2xl font-bold text-green-700 mb-4">📬 Class Messages</h2>
+
+    {% if messages %}
+    <div class="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
+        <table class="min-w-full text-sm text-left text-gray-700">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="py-3 px-4">From</th>
+                    <th class="py-3 px-4">Stream</th>
+                    <th class="py-3 px-4">Message</th>
+                    <th class="py-3 px-4">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for msg in messages %}
+                <tr class="border-t hover:bg-green-50 transition">
+                    <td class="py-3 px-4">{{ msg.sender.username|title }}</td>
+                    <td class="py-3 px-4">{{ msg.stream.grade.name }} {{ msg.stream.code }}</td>
+                    <td class="py-3 px-4">{{ msg.body|truncatechars:60 }}</td>
+                    <td class="py-3 px-4 text-gray-500 text-sm">{{ msg.created_at|date:"M d, Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-5 rounded-md text-yellow-800 mt-4">
+        No messages yet. You’ll see new messages from your teachers here.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

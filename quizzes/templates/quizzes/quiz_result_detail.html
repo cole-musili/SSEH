@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Quiz Answers - {{ result.quiz.title }}{% endblock %}
+
+{% block content %}
+<h2>{{ result.student.user.username }} - {{ result.quiz.title }}</h2>
+<p>Score: {{ result.score }} / {{ answers|length }}</p>
+
+<table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Question</th>
+            <th>Selected Answer</th>
+            <th>Correct Answer</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for answer in answers %}
+        <tr>
+            <td>{{ answer.question.text }}</td>
+            <td>{{ answer.selected_option }}</td>
+            <td>{{ answer.question.correct_answer }}</td>
+            <td>
+                {% if answer.is_correct %}
+                ✅ Correct
+                {% else %}
+                ❌ Incorrect
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
