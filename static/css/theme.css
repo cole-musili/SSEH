@@ -3,6 +3,10 @@
    Clean + Stable Version
    ======================================== */
 
+/* ========================================
+   🎨 THEME VARIABLES
+   ======================================== */
+
 /* Light Mode Defaults */
 :root {
     --bg: #ffffff;
@@ -12,6 +16,7 @@
 
     --green: #16a34a;
     --green-hover: #22c55e;
+
     --red: #dc2626;
     --red-hover: #b91c1c;
 }
@@ -25,27 +30,41 @@ html.dark {
 
     --green: #22c55e;
     --green-hover: #4ade80;
+
     --red: #ef4444;
     --red-hover: #f87171;
 }
 
-/* Base Layout */
+
+/* ========================================
+   🌍 BASE LAYOUT
+   ======================================== */
+
 body {
     background-color: var(--bg);
     color: var(--text);
     font-family: 'Inter', sans-serif;
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* ==============================
+
+/* ========================================
    🧭 NAVBAR & FOOTER
-   ============================== */
+   ======================================== */
+
 header,
 nav {
     background-color: var(--surface);
-    border-bottom: 1px solid var(--border);
     color: var(--text);
-    transition: background-color 0.3s, color 0.3s;
+    border-bottom: 1px solid var(--border);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.dark header,
+html.dark nav {
+    background-color: #1e293b;
+    color: #f9fafb;
+    border-color: #334155;
 }
 
 /* Navbar Links */
@@ -59,14 +78,6 @@ nav a:hover {
     color: var(--green);
 }
 
-/* Dark Navbar */
-html.dark header,
-html.dark nav {
-    background-color: #1e293b;
-    color: var(--text);
-    border-color: #334155;
-}
-
 html.dark nav a {
     color: #e5e7eb;
 }
@@ -75,39 +86,124 @@ html.dark nav a:hover {
     color: var(--green-hover);
 }
 
-/* Mobile Menu */
+
+/* ========================================
+   📱 MOBILE MENU
+   ======================================== */
+
 #mobileMenu {
     background-color: var(--surface);
     color: var(--text);
+    border-color: var(--border);
 }
 
 html.dark #mobileMenu {
     background-color: #1e293b;
     color: #e5e7eb;
+    border-color: #334155;
 }
 
-/* Footer */
-footer {
+
+/* ========================================
+   👤 PROFILE DROPDOWN
+   ======================================== */
+
+#profileMenu {
     background-color: var(--surface);
-    color: #475569;
-    transition: all 0.3s;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-html.dark footer {
-    background-color: #111827;
-    color: #d1d5db;
+html.dark #profileMenu {
+    background-color: #1e293b;
+    color: #f3f4f6;
+    border-color: #334155;
 }
 
-/* ==============================
+/* Dropdown Links */
+#profileMenu a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    color: var(--text);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#profileMenu a:hover {
+    background-color: rgba(22, 163, 74, 0.05);
+    color: var(--green-hover);
+}
+
+html.dark #profileMenu a {
+    color: #f3f4f6;
+}
+
+html.dark #profileMenu a:hover {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: var(--green-hover);
+}
+
+/* Logout */
+#profileMenu a.text-red-600 {
+    color: var(--red) !important;
+}
+
+#profileMenu a.text-red-600:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--red-hover) !important;
+}
+
+
+/* ========================================
+   🌗 THEME TOGGLE
+   ======================================== */
+
+#themeToggle {
+    background-color: transparent !important;
+    color: inherit;
+    box-shadow: none;
+}
+
+#themeToggle:hover {
+    background-color: rgba(156, 163, 175, 0.15) !important;
+}
+
+html.dark #themeToggle {
+    background-color: transparent !important;
+}
+
+html.dark #themeToggle:hover {
+    background-color: rgba(156, 163, 175, 0.15) !important;
+}
+
+#themeToggle:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+#themeToggle svg {
+    transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+
+/* ========================================
    💳 CARDS & CONTAINERS
-   ============================== */
+   ======================================== */
+
 .card {
     background-color: var(--surface);
     color: var(--text);
     border-radius: 0.75rem;
     border: 1px solid var(--border);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s;
+    transition: background-color 0.3s ease,
+        color 0.3s ease,
+        border-color 0.3s ease;
 }
 
 html.dark .card {
@@ -116,15 +212,77 @@ html.dark .card {
     border-color: #334155;
 }
 
-/* Fix Tailwind .bg-white conflicts */
+
+/* ========================================
+   🌓 TAILWIND WHITE SURFACES
+   ======================================== */
+
+/*
+   Many existing templates use Tailwind's
+   bg-white class.
+
+   Convert those surfaces in dark mode so
+   individual pages do not remain white.
+*/
 html.dark .bg-white {
     background-color: #1e293b !important;
-    color: #f3f4f6 !important;
+    color: #f3f4f6;
 }
 
-/* ==============================
+
+/* ========================================
+   📊 TABLES
+   ======================================== */
+
+html.dark table {
+    color: #f3f4f6;
+}
+
+html.dark thead {
+    background-color: #334155 !important;
+    color: #f1f5f9 !important;
+}
+
+html.dark tbody {
+    background-color: #1e293b;
+}
+
+html.dark th {
+    color: #f1f5f9 !important;
+    border-color: #475569 !important;
+}
+
+html.dark td {
+    color: #e5e7eb;
+    border-color: #475569 !important;
+}
+
+/* Table rows */
+html.dark tr {
+    border-color: #475569 !important;
+}
+
+html.dark tr:hover {
+    background-color: rgba(34, 197, 94, 0.08);
+}
+
+
+/* ========================================
    🔘 BUTTONS
-   ============================== */
+   ======================================== */
+
+/*
+   IMPORTANT:
+   Do NOT style every button globally here.
+
+   Tailwind buttons such as:
+   bg-green-600
+   bg-red-600
+   bg-blue-600
+
+   should keep their own colors.
+*/
+
 .btn {
     display: inline-flex;
     align-items: center;
@@ -138,7 +296,7 @@ html.dark .bg-white {
 
 .btn-green {
     background-color: var(--green);
-    color: #fff;
+    color: #ffffff;
 }
 
 .btn-green:hover {
@@ -147,7 +305,7 @@ html.dark .bg-white {
 
 .btn-gray {
     background-color: #64748b;
-    color: #fff;
+    color: #ffffff;
 }
 
 .btn-gray:hover {
@@ -156,112 +314,62 @@ html.dark .bg-white {
 
 .btn-red {
     background-color: var(--red);
-    color: #fff;
+    color: #ffffff;
 }
 
 .btn-red:hover {
     background-color: var(--red-hover);
 }
 
-/* ==============================
-   ✏️ INPUTS
-   ============================== */
+
+/* ========================================
+   ✏️ INPUTS / SELECTS / TEXTAREAS
+   ======================================== */
+
 input,
 select,
 textarea {
-    background-color: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
+    background-color: var(--surface) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
     border-radius: 0.5rem;
     padding: 0.5rem 0.75rem;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
+html.dark input,
+html.dark select,
+html.dark textarea {
+    background-color: #1e293b !important;
+    color: #f9fafb !important;
+    border-color: #475569 !important;
+}
+
+/* Placeholder */
+input::placeholder,
+textarea::placeholder {
+    color: #9ca3af !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+    color: #d1d5db !important;
+}
+
+/* Focus */
 input:focus,
 select:focus,
 textarea:focus {
-    border-color: var(--green);
+    border-color: var(--green) !important;
     box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
     outline: none;
 }
 
-/* ==============================
-   🪶 LINKS
-   ============================== */
-a {
-    color: var(--green);
-    text-decoration: none;
-}
 
-a:hover {
-    color: var(--green-hover);
-}
+/* ========================================
+   🏷️ FORM LABELS
+   ======================================== */
 
-/* ==============================
-   🌗 TOGGLE ICONS
-   ============================== */
-#themeToggle svg {
-    transition: opacity 0.3s ease;
-}
-
-html.dark #themeToggle #sunIcon {
-    display: inline;
-}
-
-html:not(.dark) #themeToggle #moonIcon {
-    display: inline;
-}
-
-
-/* =====================================
-   🔧 Contrast improvement (dark mode)
-   ===================================== */
-
-/* General text inside dark cards and tables */
-html.dark .card,
-html.dark table,
-html.dark th,
-html.dark td,
-html.dark p,
-html.dark span,
-html.dark li {
-    color: #f9fafb !important;
-    /* much brighter white */
-}
-
-/* Headings / strong text */
-html.dark h1,
-html.dark h2,
-html.dark h3,
-html.dark h4,
-html.dark h5,
-html.dark h6,
-html.dark strong {
-    color: #ffffff !important;
-}
-
-/* Muted or secondary text (labels, hints) */
-html.dark .text-muted,
-html.dark small {
-    color: #cbd5e1 !important;
-    /* slate-300 for softer look */
-}
-
-/* Table borders */
-html.dark table,
-html.dark th,
-html.dark td {
-    border-color: #475569 !important;
-    /* slate-600 */
-}
-
-
-
-/* =====================================
-   ✉️ FORM VISIBILITY FIX
-   ===================================== */
-
-/* Label text */
 label {
     font-weight: 500;
     color: var(--text);
@@ -271,198 +379,27 @@ label {
 
 html.dark label {
     color: #f9fafb !important;
-    /* bright white labels */
-}
-
-/* Input & Textarea text + placeholder */
-input,
-select,
-textarea {
-    background-color: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-}
-
-input::placeholder,
-textarea::placeholder {
-    color: #9ca3af;
-    /* neutral gray in light mode */
-}
-
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-    color: #d1d5db;
-    /* light gray, visible on dark bg */
-}
-
-/* Fix select dropdown text */
-html.dark select {
-    background-color: #1e293b;
-    color: #f9fafb;
-}
-
-/* Form headings or cards */
-html.dark form,
-html.dark .form-card,
-html.dark .form-container {
-    background-color: #1e293b;
-    color: #f9fafb;
-}
-
-/* =====================================
-   🩶 INPUT TEXT VISIBILITY FIX
-   ===================================== */
-
-/* Force readable text inside inputs and textareas */
-input,
-textarea,
-select {
-    background-color: var(--surface) !important;
-    color: var(--text) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    transition: all 0.2s ease;
-}
-
-/* Placeholder color */
-input::placeholder,
-textarea::placeholder {
-    color: #9ca3af !important;
-    /* gray-400 for light mode */
-}
-
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-    color: #d1d5db !important;
-    /* gray-300 for dark mode */
-}
-
-/* Dark mode input background and text */
-html.dark input,
-html.dark textarea,
-html.dark select {
-    background-color: #1e293b !important;
-    /* match cards */
-    color: #f9fafb !important;
-    /* bright text */
-    border-color: #475569 !important;
-    /* soft border */
-}
-
-/* When focused */
-input:focus,
-textarea:focus,
-select:focus {
-    border-color: var(--green) !important;
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
-    outline: none;
-}
-
-/* =====================================
-   👤 PROFILE DROPDOWN FIX
-   ===================================== */
-
-/* Dropdown base */
-#profileMenu {
-    background-color: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Dropdown links */
-#profileMenu a {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    font-weight: 500;
-    color: var(--text);
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-/* Hover state */
-#profileMenu a:hover {
-    background-color: rgba(22, 163, 74, 0.05);
-    /* faint green tint */
-    color: var(--green-hover);
-}
-
-/* Dark mode */
-html.dark #profileMenu {
-    background-color: #1e293b;
-    border-color: #334155;
-    color: #f3f4f6;
-}
-
-/* Dark mode links */
-html.dark #profileMenu a {
-    color: #f3f4f6;
-}
-
-html.dark #profileMenu a:hover {
-    background-color: rgba(34, 197, 94, 0.1);
-    color: var(--green-hover);
-}
-
-/* Logout special color */
-#profileMenu a.text-red-600 {
-    color: var(--red) !important;
-}
-
-#profileMenu a.text-red-600:hover {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: var(--red-hover) !important;
 }
 
 
+/* ========================================
+   🔗 LINKS
+   ======================================== */
 
-/* =====================================
-   🧭 NAVBAR + LOGIN PANEL DARK FIX
-   ===================================== */
-
-/* Navbar - inherit proper background and text */
-nav,
-header {
-    background-color: var(--surface);
-    color: var(--text);
-    border-bottom: 1px solid var(--border);
-    transition: all 0.3s ease;
-}
-
-html.dark nav,
-html.dark header {
-    background-color: #1e293b;
-    /* dark slate */
-    color: #f9fafb;
-    /* bright text */
-    border-color: #334155;
-}
-
-/* Navbar links */
-nav a {
-    color: var(--text);
-    transition: color 0.3s ease;
-}
-
-nav a:hover {
+a {
     color: var(--green);
+    text-decoration: none;
 }
 
-html.dark nav a {
-    color: #e2e8f0;
-}
-
-html.dark nav a:hover {
+a:hover {
     color: var(--green-hover);
 }
 
-/* =====================================
-   🟩 LOGIN FORM PANEL FIX
-   ===================================== */
+
+/* ========================================
+   🧾 FORM / AUTH PANELS
+   ======================================== */
+
 .login-card,
 .auth-card,
 #loginForm {
@@ -471,7 +408,9 @@ html.dark nav a:hover {
     border-radius: 0.75rem;
     border: 1px solid var(--border);
     padding: 1.5rem;
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.3s ease,
+        color 0.3s ease,
+        border-color 0.3s ease;
 }
 
 html.dark .login-card,
@@ -482,75 +421,239 @@ html.dark #loginForm {
     border-color: #475569;
 }
 
-/* Login inputs and placeholders */
-html.dark .login-card input,
-html.dark .login-card input::placeholder {
-    color: #f9fafb;
-    background-color: #1e293b;
-}
 
-html.dark .login-card a {
-    color: #22c55e;
-}
+/* ========================================
+   📝 LOGIN PAGE
+   ======================================== */
 
-html.dark .login-card a:hover {
-    color: #4ade80;
-}
-
-
-/* =====================================
-   🧠 LOGIN PAGE DARK MODE OVERRIDES
-   ===================================== */
-
-/* Outer container gradient */
+/* Outer container */
 html.dark .min-h-screen {
-    background: linear-gradient(to bottom right, #0f172a, #1e293b) !important;
+    background: linear-gradient(to bottom right,
+            #0f172a,
+            #1e293b) !important;
 }
 
-/* The white panel on the right */
-html.dark .bg-white {
+/* Login panel */
+html.dark .login-card,
+html.dark .auth-card,
+html.dark #loginForm {
     background-color: #1e293b !important;
     color: #f9fafb !important;
     border-color: #475569 !important;
 }
 
-/* Text colours inside the panel */
-html.dark .text-gray-800,
-html.dark .text-gray-600,
-html.dark .text-gray-500 {
+/* Login text */
+html.dark .login-card .text-gray-800,
+html.dark .login-card .text-gray-600,
+html.dark .login-card .text-gray-500 {
     color: #f9fafb !important;
 }
 
-/* Links */
-html.dark a.text-green-700 {
+/* Login links */
+html.dark .login-card a.text-green-700 {
     color: #22c55e !important;
 }
 
-html.dark a.text-green-700:hover {
+html.dark .login-card a.text-green-700:hover {
     color: #4ade80 !important;
 }
 
-/* Inputs */
-html.dark input {
-    background-color: #1e293b !important;
+
+/* ========================================
+   🧠 DARK MODE TEXT CONTRAST
+   ======================================== */
+
+/*
+   Only correct the common Tailwind gray text
+   classes. Do not force every <span>, <p>,
+   or <td> to white because that can destroy
+   colored badges and status indicators.
+*/
+
+html.dark .text-gray-900 {
     color: #f9fafb !important;
-    border-color: #475569 !important;
 }
 
-html.dark input::placeholder {
+html.dark .text-gray-800 {
+    color: #f3f4f6 !important;
+}
+
+html.dark .text-gray-700 {
+    color: #e5e7eb !important;
+}
+
+html.dark .text-gray-600 {
+    color: #d1d5db !important;
+}
+
+html.dark .text-gray-500 {
     color: #cbd5e1 !important;
 }
 
-/* Checkbox and label */
-html.dark label {
+html.dark .text-gray-400 {
+    color: #94a3b8 !important;
+}
+
+
+/* ========================================
+   📋 DARK MODE TABLE TEXT
+   ======================================== */
+
+html.dark table .text-gray-900 {
     color: #f9fafb !important;
 }
 
-/* Buttons */
-html.dark button {
-    background-color: #22c55e !important;
+html.dark table .text-gray-800 {
+    color: #f3f4f6 !important;
 }
 
-html.dark button:hover {
-    background-color: #4ade80 !important;
+html.dark table .text-gray-700 {
+    color: #e5e7eb !important;
 }
+
+html.dark table .text-gray-600 {
+    color: #d1d5db !important;
+}
+
+html.dark table .text-gray-500 {
+    color: #cbd5e1 !important;
+}
+
+
+/* ========================================
+   🟢 BADGES / STATUS COLORS
+   ======================================== */
+
+/*
+   Keep semantic colors visible in dark mode.
+*/
+
+/* Green */
+html.dark .bg-green-50 {
+    background-color: rgba(34, 197, 94, 0.12) !important;
+}
+
+html.dark .text-green-700 {
+    color: #4ade80 !important;
+}
+
+html.dark .text-green-800 {
+    color: #86efac !important;
+}
+
+/* Yellow */
+html.dark .bg-yellow-50 {
+    background-color: rgba(234, 179, 8, 0.12) !important;
+}
+
+html.dark .text-yellow-800 {
+    color: #fde68a !important;
+}
+
+/* Blue */
+html.dark .bg-blue-50 {
+    background-color: rgba(59, 130, 246, 0.12) !important;
+}
+
+html.dark .text-blue-900 {
+    color: #bfdbfe !important;
+}
+
+html.dark .text-blue-800 {
+    color: #bfdbfe !important;
+}
+
+/* Red */
+html.dark .bg-red-50 {
+    background-color: rgba(239, 68, 68, 0.12) !important;
+}
+
+html.dark .text-red-800 {
+    color: #fca5a5 !important;
+}
+
+
+/* ========================================
+   🪶 MUTED TEXT
+   ======================================== */
+
+html.dark .text-muted,
+html.dark small {
+    color: #cbd5e1 !important;
+}
+
+
+/* ========================================
+   📏 BORDERS
+   ======================================== */
+
+html.dark .border-gray-100 {
+    border-color: #334155 !important;
+}
+
+html.dark .border-gray-200 {
+    border-color: #475569 !important;
+}
+
+html.dark .border-gray-300 {
+    border-color: #64748b !important;
+}
+
+
+/* ========================================
+   🧩 DARK MODE SURFACE HELPERS
+   ======================================== */
+
+/* Light gray surfaces */
+html.dark .bg-gray-50 {
+    background-color: #273449 !important;
+}
+
+html.dark .bg-gray-100 {
+    background-color: #334155 !important;
+}
+
+
+/* ========================================
+   🦶 FOOTER
+   ======================================== */
+
+footer {
+    background-color: var(--surface);
+    color: #475569;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.dark footer {
+    background-color: #111827;
+    color: #d1d5db;
+}
+
+
+/* ========================================
+   🧾 DARK FORM CONTAINERS
+   ======================================== */
+
+html.dark form,
+html.dark .form-card,
+html.dark .form-container {
+    background-color: #1e293b;
+    color: #f9fafb;
+}
+
+
+/* ========================================
+   🚫 IMPORTANT: NO GLOBAL DARK BUTTON RULE
+   ======================================== */
+
+/*
+   Do NOT add:
+
+   html.dark button {
+       background-color: #22c55e !important;
+   }
+
+   That would turn the theme toggle,
+   profile button, mobile menu button,
+   and every other button green.
+*/

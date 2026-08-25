@@ -11,10 +11,13 @@ class ParentProfileAdmin(admin.ModelAdmin):
         "students__user__username",
         "students__student_id",
     )
-    filter_horizontal = ("students",)  # adds the nice dual list selector for M2M
+    filter_horizontal = ("students",)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.prefetch_related("students__user")
 
     def linked_students(self, obj):
-        """Display all students linked to this parent."""
         students = obj.students.all()
         if students:
             return ", ".join([s.user.username for s in students])

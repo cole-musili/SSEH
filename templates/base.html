@@ -9,6 +9,11 @@
 
     <!-- Tailwind & Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        };
+    </script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- Styles -->
@@ -18,8 +23,12 @@
     <!-- Prevent flash -->
     <script>
         const t = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (t === 'dark' || (!t && prefersDark)) document.documentElement.classList.add('dark');
+
+        if (t === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
     </script>
 </head>
 
@@ -177,14 +186,17 @@
                 {% if request.user.is_teacher %}
                 <a href="{% url 'teachers:teacher_dashboard' %}">Dashboard</a>
                 <a href="{% url 'communications:teacher_message_list' %}">Messages</a>
+                <a href="{% url 'announcements:list' %}">Announcements</a>
                 <a href="{% url 'resources:resource_list' %}">Resources</a>
                 {% elif request.user.is_student %}
                 <a href="{% url 'students:student_dashboard' %}">Dashboard</a>
                 <a href="{% url 'students:results' %}">Results</a>
+                <a href="{% url 'announcements:list' %}">Announcements</a>
                 <a href="{% url 'communications:student_message_list' %}">Messages</a>
                 {% elif request.user.is_parent %}
                 <a href="{% url 'parents:parent_dashboard' %}">Dashboard</a>
                 <a href="{% url 'communications:parent_message_list' %}">Messages</a>
+                <a href="{% url 'announcements:list' %}">Announcements</a>
                 <a href="{% url 'resources:resource_list' %}">Resources</a>
                 {% elif request.user.is_school_admin or request.user.is_superuser %}
                 <a href="{% url 'school_admin:admin_dashboard' %}">Dashboard</a>
@@ -230,11 +242,11 @@
                 sun.classList.add('hidden');
                 moon.classList.remove('hidden');
             }
+
             localStorage.setItem('theme', theme);
         }
 
-        const current = localStorage.getItem('theme') ||
-            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        const current = localStorage.getItem('theme') || 'light';
         setTheme(current);
 
         toggle?.addEventListener('click', () =>
@@ -244,6 +256,7 @@
         // ✅ dropdowns restored
         const profileBtn = document.getElementById('profileBtn');
         const profileMenu = document.getElementById('profileMenu');
+
         if (profileBtn && profileMenu) {
             profileBtn.addEventListener('click', () => {
                 profileMenu.classList.toggle('hidden');
@@ -252,6 +265,7 @@
 
         const mobileBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
+
         if (mobileBtn && mobileMenu) {
             mobileBtn.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
@@ -263,5 +277,5 @@
 
     {% block extra_scripts %}{% endblock %}
 </body>
-    
+
 </html>

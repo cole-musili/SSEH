@@ -21,43 +21,28 @@ def student_dashboard(request):
 
     stream = getattr(student_profile, "stream", None)
 
-    # Get all quizzes assigned to this student's stream
-    quizzes = (
-        Quiz.objects
-        .filter(teacher_quiz__stream=stream)
-        .distinct()
-        if stream
-        else Quiz.objects.none()
-    )
+    # 1. Fetch all completed quiz results for this student
+    completed_results = QuizResult.objects.filter(student=student_profile)
+
+    # 2. Fetch all quizzes (matching take_quiz_list behavior)
+    quizzes = Quiz.objects.all().order_by("-created_at")
 
     quiz_data = []
     completed_percentages = []
 
     for quiz in quizzes:
-
-        result = (
-            QuizResult.objects
-            .filter(
-                student=student_profile,
-                quiz=quiz
-            )
-            .first()
-        )
+        result = completed_results.filter(quiz=quiz).first()
 
         percentage = None
         total_questions = 0
 
         if result:
-
-            # Count the actual questions answered in this result
             total_questions = result.answers.count()
-
             if total_questions > 0:
                 percentage = round(
                     (result.score / total_questions) * 100,
                     1
                 )
-
                 completed_percentages.append(percentage)
 
         quiz_data.append({
@@ -71,7 +56,6 @@ def student_dashboard(request):
     total_quizzes = len(quiz_data)
     completed_count = len(completed_percentages)
 
-    # Average performance across completed quizzes
     avg_score = (
         round(
             sum(completed_percentages) / completed_count,
